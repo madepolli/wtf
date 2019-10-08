@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"code.cloudfoundry.org/bytefmt"
-	"fmt"
 	"github.com/rivo/tview"
 	"github.com/shirou/gopsutil/cpu"
 	"github.com/shirou/gopsutil/mem"
