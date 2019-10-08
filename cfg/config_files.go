@@ -1,104 +1,38 @@
 package cfg
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
+	"os/user"
+	"path/filepath"
 
 	"github.com/olebedev/config"
-	"github.com/wtfutil/wtf/logger"
-	"github.com/wtfutil/wtf/wtf"
 )
 
-// ConfigDirV1 defines the path to the first version of configuration. Do not use this
-const ConfigDirV1 = "~/.wtf/"
+const (
+	// XdgConfigDir defines the path to the minimal XDG-compatible configuration directory
+	XdgConfigDir = "~/.config/"
 
-// ConfigDirV2 defines the path to the second version of the configuration. Use this.
-const ConfigDirV2 = "~/.config/wtf/"
+	// WtfConfigDirV1 defines the path to the first version of configuration. Do not use this
+	WtfConfigDirV1 = "~/.wtf/"
 
-/* -------------------- Config Migration -------------------- */
+	// WtfConfigDirV2 defines the path to the second version of the configuration. Use this.
+	WtfConfigDirV2 = "~/.config/wtf/"
 
-// MigrateOldConfig copies any existing configuration from the old location
-// to the new, XDG-compatible location
-func MigrateOldConfig() {
-	srcDir, _ := wtf.ExpandHomeDir(ConfigDirV1)
-	destDir, _ := wtf.ExpandHomeDir(ConfigDirV2)
+	// WtfConfigFile defines the name of the default config file
+	WtfConfigFile = "config.yml"
+)
 
-	// If the old config directory doesn't exist, do not move
-	if _, err := os.Stat(srcDir); os.IsNotExist(err) {
-		return
-	}
-
-	// If the new config directory already exists, do not move
-	if _, err := os.Stat(destDir); err == nil {
-		return
-	}
-
-	// Time to move
-	err := Copy(srcDir, destDir)
-	if err != nil {
-		panic(err)
-	} else {
-		logger.Log(fmt.Sprintf("Copied old config from %s to %s", srcDir, destDir))
-	}
-
-	// Delete the old directory if the new one exists
-	if _, err := os.Stat(destDir); err == nil {
-		err := os.RemoveAll(srcDir)
-		if err != nil {
-			logger.Log(err.Error())
-		}
-	}
-}
-
-/* -------------------- Config Migration -------------------- */
-
-// ConfigDir returns the absolute path to the configuration directory
-func ConfigDir() (string, error) {
-	configDir, err := wtf.ExpandHomeDir(ConfigDirV2)
-	if err != nil {
-		return "", err
-	}
-
-	return configDir, nil
-}
-
-// CreateConfigDir creates the wtf/ directory in the user's home dir
-func CreateConfigDir() {
-	configDir, _ := ConfigDir()
-
-	if _, err := os.Stat(configDir); os.IsNotExist(err) {
-		err := os.Mkdir(configDir, os.ModePerm)
-		if err != nil {
-			panic(err)
-		}
-	}
-}
-
-// CreateConfigFile creates a simple config file in the config directory if
-// one does not already exist
-func CreateConfigFile() {
-	filePath, err := CreateFile("config.yml")
-	if err != nil {
-		panic(err)
-	}
-
-	// If the file is empty, write to it
-	file, _ := os.Stat(filePath)
-
-	if file.Size() == 0 {
-		if ioutil.WriteFile(filePath, []byte(simpleConfig), 0644) != nil {
-			panic(err)
-		}
-	}
-}
+/* -------------------- Exported Functions -------------------- */
 
 // CreateFile creates the named file in the config directory, if it does not already exist.
 // If the file exists it does not recreate it.
 // If successful, eturns the absolute path to the file
 // If unsuccessful, returns an error
 func CreateFile(fileName string) (string, error) {
-	configDir, err := ConfigDir()
+	configDir, err := WtfConfigDir()
 	if err != nil {
 		return "", err
 	}
@@ -121,81 +55,178 @@ func CreateFile(fileName string) (string, error) {
 	return filePath, nil
 }
 
-// LoadConfigFile loads the config.yml file to configure the app
-func LoadConfigFile(filePath string) *config.Config {
-	absPath, _ := wtf.ExpandHomeDir(filePath)
+// Initialize takes care of settings up the initial state of WTF configuration
+// It ensures necessary directories and files exist
+func Initialize(hasCustom bool) {
+	if hasCustom == false {
+		migrateOldConfig()
+	}
+
+	// These always get created because this is where modules should write any permanent
+	// data they need to persist between runs (i.e.: log, textfile, etc.)
+	createXdgConfigDir()
+	createWtfConfigDir()
+
+	if hasCustom == false {
+		createWtfConfigFile()
+		chmodConfigFile()
+	}
+}
+
+// WtfConfigDir returns the absolute path to the configuration directory
+func WtfConfigDir() (string, error) {
+	configDir, err := expandHomeDir(WtfConfigDirV2)
+	if err != nil {
+		return "", err
+	}
+
+	return configDir, nil
+}
+
+// LoadWtfConfigFile loads the specified config file
+func LoadWtfConfigFile(filePath string) *config.Config {
+	absPath, _ := expandHomeDir(filePath)
 
 	cfg, err := config.ParseYamlFile(absPath)
 	if err != nil {
-		fmt.Println("\n\n\033[1m ERROR:\033[0m Could not load '\033[0;33mconfig.yml\033[0m'.\n Please add a \033[0;33mconfig.yml\033[0m file to your \033[0;33m~/.config/wtf\033[0m directory.\n See \033[1;34mhttps://github.com/wtfutil/wtf\033[0m for details.")
-		fmt.Printf(" %s\n", err.Error())
+		displayWtfConfigFileLoadError(absPath, err)
 		os.Exit(1)
 	}
 
 	return cfg
 }
 
-const simpleConfig = `wtf:
-  colors:
-    border:
-      focusable: darkslateblue
-      focused: orange
-      normal: gray
-  grid:
-    columns: [40, 40]
-    rows: [13, 13, 4]
-  refreshInterval: 1
-  mods:
-    clocks:
-      colors:
-        rows:
-          even: "lightblue"
-          odd: "white"
-      enabled: true
-      locations:
-        Avignon: "Europe/Paris"
-        Barcelona: "Europe/Madrid"
-        Dubai: "Asia/Dubai"
-        Vancouver: "America/Vancouver"
-        Toronto: "America/Toronto"
-      position:
-        top: 0
-        left: 0
-        height: 1
-        width: 1
-      refreshInterval: 15
-      sort: "alphabetical"
-    security:
-      enabled: true
-      position:
-        top: 1
-        left: 0
-        height: 1
-        width: 1
-      refreshInterval: 3600
-    status:
-      enabled: true
-      position:
-        top: 2
-        left: 0
-        height: 1
-        width: 2
-      refreshInterval: 1
-    system:
-      enabled: true
-      position:
-        top: 0
-        left: 1
-        height: 1
-        width: 1
-      refreshInterval: 3600
-    textfile:
-      enabled: true
-      filePath: "~/.config/wtf/config.yml"
-      position:
-        top: 1
-        left: 1
-        height: 1
-        width: 1
-      refreshInterval: 30
-`
+/* -------------------- Unexported Functions -------------------- */
+
+// chmodConfigFile sets the mode of the config file to r+w for the owner only
+func chmodConfigFile() {
+	relPath := fmt.Sprintf("%s%s", WtfConfigDirV2, WtfConfigFile)
+	absPath, _ := expandHomeDir(relPath)
+
+	_, err := os.Stat(absPath)
+	if err != nil && os.IsNotExist(err) {
+		return
+	}
+
+	err = os.Chmod(absPath, 0600)
+	if err != nil {
+		return
+	}
+}
+
+// createXdgConfigDir creates the necessary base directory for storing the config file
+// If ~/.config is missing, it will try to create it
+func createXdgConfigDir() {
+	xdgConfigDir, _ := expandHomeDir(XdgConfigDir)
+
+	if _, err := os.Stat(xdgConfigDir); os.IsNotExist(err) {
+		err := os.Mkdir(xdgConfigDir, os.ModePerm)
+		if err != nil {
+			displayXdgConfigDirCreateError(err)
+			os.Exit(1)
+		}
+	}
+}
+
+// createWtfConfigDir creates the necessary directories for storing the default config file
+// If ~/.config/wtf is missing, it will try to create it
+func createWtfConfigDir() {
+	wtfConfigDir, _ := WtfConfigDir()
+
+	if _, err := os.Stat(wtfConfigDir); os.IsNotExist(err) {
+		err := os.Mkdir(wtfConfigDir, os.ModePerm)
+		if err != nil {
+			displayWtfConfigDirCreateError(err)
+			os.Exit(1)
+		}
+	}
+}
+
+// createWtfConfigFile creates a simple config file in the config directory if
+// one does not already exist
+func createWtfConfigFile() {
+	filePath, err := CreateFile(WtfConfigFile)
+	if err != nil {
+		displayDefaultConfigCreateError(err)
+		os.Exit(1)
+	}
+
+	// If the file is empty, write to it
+	file, _ := os.Stat(filePath)
+
+	if file.Size() == 0 {
+		if ioutil.WriteFile(filePath, []byte(defaultConfigFile), 0600) != nil {
+			displayDefaultConfigWriteError(err)
+			os.Exit(1)
+		}
+	}
+}
+
+// Expand expands the path to include the home directory if the path
+// is prefixed with `~`. If it isn't prefixed with `~`, the path is
+// returned as-is.
+func expandHomeDir(path string) (string, error) {
+	if len(path) == 0 {
+		return path, nil
+	}
+
+	if path[0] != '~' {
+		return path, nil
+	}
+
+	if len(path) > 1 && path[1] != '/' && path[1] != '\\' {
+		return "", errors.New("cannot expand user-specific home dir")
+	}
+
+	dir, err := home()
+	if err != nil {
+		return "", err
+	}
+
+	return filepath.Join(dir, path[1:]), nil
+}
+
+// Dir returns the home directory for the executing user.
+// An error is returned if a home directory cannot be detected.
+func home() (string, error) {
+	currentUser, err := user.Current()
+	if err != nil {
+		return "", err
+	}
+	if currentUser.HomeDir == "" {
+		return "", errors.New("cannot find user-specific home dir")
+	}
+
+	return currentUser.HomeDir, nil
+}
+
+// migrateOldConfig copies any existing configuration from the old location
+// to the new, XDG-compatible location
+func migrateOldConfig() {
+	srcDir, _ := expandHomeDir(WtfConfigDirV1)
+	destDir, _ := expandHomeDir(WtfConfigDirV2)
+
+	// If the old config directory doesn't exist, do not move
+	if _, err := os.Stat(srcDir); os.IsNotExist(err) {
+		return
+	}
+
+	// If the new config directory already exists, do not move
+	if _, err := os.Stat(destDir); err == nil {
+		return
+	}
+
+	// Time to move
+	err := Copy(srcDir, destDir)
+	if err != nil {
+		panic(err)
+	}
+
+	// Delete the old directory if the new one exists
+	if _, err := os.Stat(destDir); err == nil {
+		err := os.RemoveAll(srcDir)
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
+}

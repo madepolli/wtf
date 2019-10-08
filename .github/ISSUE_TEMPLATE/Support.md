@@ -1,8 +1,8 @@
 ---
-name: ❓ Support Question
-about: Have a problem that you can't figure out?
+name: ❓Ask a Question
+about: Tell us how we can help
 ---
 
-#### What problem are you having and how can we help?
+## How can we help?
 
 

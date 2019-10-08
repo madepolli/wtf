@@ -15,21 +15,28 @@ const HelpText = `
 
 type Widget struct {
 	wtf.HelpfulWidget
+	wtf.KeyboardWidget
 	wtf.TextWidget
+
+	settings *Settings
 }
 
-func NewWidget(app *tview.Application, pages *tview.Pages) *Widget {
+func NewWidget(app *tview.Application, pages *tview.Pages, settings *Settings) *Widget {
 	widget := Widget{
 		HelpfulWidget: wtf.NewHelpfulWidget(app, pages, HelpText),
-		TextWidget:    wtf.NewTextWidget(app, "{{(Title .Name)}}", "{{(Lower .Name)}}", true),
+		KeyboardWidget: wtf.NewKeyboardWidget(),
+		TextWidget:    wtf.NewTextWidget(app, settings.common, false),
+
+		settings: settings,
 	}
 
-	widget.HelpfulWidget.SetView(widget.View)
-	widget.unselect()
+  widget.initializeKeyboardControls()
+	widget.View.SetInputCapture(widget.InputCapture)
 
 	widget.View.SetScrollable(true)
 	widget.View.SetRegions(true)
-	widget.View.SetInputCapture(widget.keyboardIntercept)
+
+	widget.HelpfulWidget.SetView(widget.View)
 
 	return &widget
 }
@@ -39,31 +46,11 @@ func NewWidget(app *tview.Application, pages *tview.Pages) *Widget {
 func (widget *Widget) Refresh() {
 
 	// The last call should always be to the display function
-	widget.display()
+  widget.display()
 }
 
 /* -------------------- Unexported Functions -------------------- */
 
 func (widget *Widget) display() {
-	widget.View.SetWrap(false)
-
-	widget.View.Clear()
-	widget.View.SetTitle(widget.Name)
-	widget.View.SetText("Some Text")
-	widget.View.Highlight(strconv.Itoa(widget.selected)).ScrollToHighlight()
-}
-
-func (widget *Widget) unselect() {
-	widget.selected = -1
-	widget.display()
-}
-
-func (widget *Widget) keyboardIntercept(event *tcell.EventKey) *tcell.EventKey {
-	// This switch statement could handle alphanumeric keys
-	switch string(event.Rune()) {
-	}
-
-	// This switch statement could handle events like the "enter" key
-	switch event.Key() {
-	}
+  widget.Redraw(widget.CommonSettings().Title, "Some text", false)
 }

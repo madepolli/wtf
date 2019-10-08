@@ -68,35 +68,35 @@ type Grid struct {
 //   grid.SetBackgroundColor(tview.Styles.PrimitiveBackgroundColor)
 func NewGrid() *Grid {
 	g := &Grid{
-		Box:          NewBox().SetBackgroundColor(tcell.ColorDefault),
+		Box:          NewBox(),
 		bordersColor: Styles.GraphicsColor,
 	}
 	g.focus = g
 	return g
 }
 
-// SetRows defines how the rows of the grid are distributed. Each value defines
-// the size of one row, starting with the leftmost row. Values greater 0
-// represent absolute row widths (gaps not included). Values less or equal 0
-// represent proportional row widths or fractions of the remaining free space,
-// where 0 is treated the same as -1. That is, a row with a value of -3 will
-// have three times the width of a row with a value of -1 (or 0). The minimum
-// width set with SetMinSize() is always observed.
+// SetColumns defines how the columns of the grid are distributed. Each value
+// defines the size of one column, starting with the leftmost column. Values
+// greater 0 represent absolute column widths (gaps not included). Values less
+// or equal 0 represent proportional column widths or fractions of the remaining
+// free space, where 0 is treated the same as -1. That is, a column with a value
+// of -3 will have three times the width of a column with a value of -1 (or 0).
+// The minimum width set with SetMinSize() is always observed.
 //
-// Primitives may extend beyond the rows defined explicitly with this function.
-// A value of 0 is assumed for any undefined row. In fact, if you never call
-// this function, all rows occupied by primitives will have the same width.
-// On the other hand, unoccupied rows defined with this function will always
-// take their place.
+// Primitives may extend beyond the columns defined explicitly with this
+// function. A value of 0 is assumed for any undefined column. In fact, if you
+// never call this function, all columns occupied by primitives will have the
+// same width. On the other hand, unoccupied columns defined with this function
+// will always take their place.
 //
 // Assuming a total width of the grid of 100 cells and a minimum width of 0, the
-// following call will result in rows with widths of 30, 10, 15, 15, and 30
+// following call will result in columns with widths of 30, 10, 15, 15, and 30
 // cells:
 //
-//   grid.SetRows(30, 10, -1, -1, -2)
+//   grid.Setcolumns(30, 10, -1, -1, -2)
 //
-// If a primitive were then placed in the 6th and 7th row, the resulting widths
-// would be: 30, 10, 10, 10, 20, 10, and 10 cells.
+// If a primitive were then placed in the 6th and 7th column, the resulting
+// widths would be: 30, 10, 10, 10, 20, 10, and 10 cells.
 //
 // If you then called SetMinSize() as follows:
 //
@@ -104,24 +104,24 @@ func NewGrid() *Grid {
 //
 // The resulting widths would be: 30, 15, 15, 15, 20, 15, and 15 cells, a total
 // of 125 cells, 25 cells wider than the available grid width.
-func (g *Grid) SetRows(rows ...int) *Grid {
-	g.rows = rows
-	return g
-}
-
-// SetColumns defines how the columns of the grid are distributed. These values
-// behave the same as the row values provided with SetRows(), see there for
-// a definition and examples.
-//
-// The provided values correspond to column heights, the first value defining
-// the height of the topmost column.
 func (g *Grid) SetColumns(columns ...int) *Grid {
 	g.columns = columns
 	return g
 }
 
+// SetRows defines how the rows of the grid are distributed. These values behave
+// the same as the column values provided with SetColumns(), see there for a
+// definition and examples.
+//
+// The provided values correspond to row heights, the first value defining
+// the height of the topmost row.
+func (g *Grid) SetRows(rows ...int) *Grid {
+	g.rows = rows
+	return g
+}
+
 // SetSize is a shortcut for SetRows() and SetColumns() where all row and column
-// values are set to the given size values. See SetRows() for details on sizes.
+// values are set to the given size values. See SetColumns() for details on sizes.
 func (g *Grid) SetSize(numRows, numColumns, rowSize, columnSize int) *Grid {
 	g.rows = make([]int, numRows)
 	for index := range g.rows {
@@ -171,12 +171,12 @@ func (g *Grid) SetBordersColor(color tcell.Color) *Grid {
 
 // AddItem adds a primitive and its position to the grid. The top-left corner
 // of the primitive will be located in the top-left corner of the grid cell at
-// the given row and column and will span "width" rows and "height" columns. For
-// example, for a primitive to occupy rows 2, 3, and 4 and columns 5 and 6:
+// the given row and column and will span "rowSpan" rows and "colSpan" columns.
+// For example, for a primitive to occupy rows 2, 3, and 4 and columns 5 and 6:
 //
-//   grid.AddItem(p, 2, 4, 3, 2, true)
+//   grid.AddItem(p, 2, 5, 3, 2, 0, 0, true)
 //
-// If width or height is 0, the primitive will not be drawn.
+// If rowSpan or colSpan is 0, the primitive will not be drawn.
 //
 // You can add the same primitive multiple times with different grid positions.
 // The minGridWidth and minGridHeight values will then determine which of those
@@ -195,13 +195,13 @@ func (g *Grid) SetBordersColor(color tcell.Color) *Grid {
 // If the item's focus is set to true, it will receive focus when the grid
 // receives focus. If there are multiple items with a true focus flag, the last
 // visible one that was added will receive focus.
-func (g *Grid) AddItem(p Primitive, row, column, height, width, minGridHeight, minGridWidth int, focus bool) *Grid {
+func (g *Grid) AddItem(p Primitive, row, column, rowSpan, colSpan, minGridHeight, minGridWidth int, focus bool) *Grid {
 	g.items = append(g.items, &gridItem{
 		Item:          p,
 		Row:           row,
 		Column:        column,
-		Height:        height,
-		Width:         width,
+		Height:        rowSpan,
+		Width:         colSpan,
 		MinGridHeight: minGridHeight,
 		MinGridWidth:  minGridWidth,
 		Focus:         focus,
@@ -230,7 +230,7 @@ func (g *Grid) Clear() *Grid {
 // drawing the first grid cell in the top-left corner. As the grid will never
 // completely move off the screen, these values may be adjusted the next time
 // the grid is drawn. The actual position of the grid may also be adjusted such
-// that contained primitives that have focus are visible.
+// that contained primitives that have focus remain visible.
 func (g *Grid) SetOffset(rows, columns int) *Grid {
 	g.rowOffset, g.columnOffset = rows, columns
 	return g
@@ -317,7 +317,7 @@ func (g *Grid) Draw(screen tcell.Screen) {
 			continue
 		}
 		previousItem, ok := items[item.Item]
-		if ok && item.Width < previousItem.Width && item.Height < previousItem.Height {
+		if ok && item.MinGridWidth < previousItem.MinGridWidth && item.MinGridHeight < previousItem.MinGridHeight {
 			continue
 		}
 		items[item.Item] = item
@@ -392,8 +392,6 @@ func (g *Grid) Draw(screen tcell.Screen) {
 	}
 
 	// Distribute proportional rows/columns.
-	gridWidth := 0
-	gridHeight := 0
 	for index := 0; index < rows; index++ {
 		row := 0
 		if index < len(g.rows) {
@@ -403,7 +401,6 @@ func (g *Grid) Draw(screen tcell.Screen) {
 			if row < g.minHeight {
 				row = g.minHeight
 			}
-			gridHeight += row
 			continue // Not proportional. We already know the width.
 		} else if row == 0 {
 			row = 1
@@ -417,7 +414,6 @@ func (g *Grid) Draw(screen tcell.Screen) {
 			rowAbs = g.minHeight
 		}
 		rowHeight[index] = rowAbs
-		gridHeight += rowAbs
 	}
 	for index := 0; index < columns; index++ {
 		column := 0
@@ -428,7 +424,6 @@ func (g *Grid) Draw(screen tcell.Screen) {
 			if column < g.minWidth {
 				column = g.minWidth
 			}
-			gridWidth += column
 			continue // Not proportional. We already know the height.
 		} else if column == 0 {
 			column = 1
@@ -442,18 +437,10 @@ func (g *Grid) Draw(screen tcell.Screen) {
 			columnAbs = g.minWidth
 		}
 		columnWidth[index] = columnAbs
-		gridWidth += columnAbs
-	}
-	if g.borders {
-		gridHeight += rows + 1
-		gridWidth += columns + 1
-	} else {
-		gridHeight += (rows - 1) * g.gapRows
-		gridWidth += (columns - 1) * g.gapColumns
 	}
 
 	// Calculate row/column positions.
-	columnX, rowY := x, y
+	var columnX, rowY int
 	if g.borders {
 		columnX++
 		rowY++
@@ -502,50 +489,87 @@ func (g *Grid) Draw(screen tcell.Screen) {
 	}
 
 	// Calculate screen offsets.
-	var offsetX, offsetY, add int
-	if g.rowOffset < 0 {
-		g.rowOffset = 0
+	var offsetX, offsetY int
+	add := 1
+	if !g.borders {
+		add = g.gapRows
 	}
-	if g.columnOffset < 0 {
-		g.columnOffset = 0
+	for index, height := range rowHeight {
+		if index >= g.rowOffset {
+			break
+		}
+		offsetY += height + add
 	}
+	if !g.borders {
+		add = g.gapColumns
+	}
+	for index, width := range columnWidth {
+		if index >= g.columnOffset {
+			break
+		}
+		offsetX += width + add
+	}
+
+	// Line up the last row/column with the end of the available area.
+	var border int
 	if g.borders {
-		add = 1
+		border = 1
 	}
-	for row := 0; row < rows-1; row++ {
-		remainingHeight := gridHeight - offsetY
-		if focus != nil && focus.y-add <= offsetY || // Don't let the focused item move out of screen.
-			row >= g.rowOffset && (focus == nil || focus != nil && focus.y-offsetY < height) || // We've reached the requested offset.
-			remainingHeight <= height { // We have enough space to show the rest.
-			if row > 0 {
-				if focus != nil && focus.y+focus.h+add-offsetY > height {
-					offsetY += focus.y + focus.h + add - offsetY - height
-				}
-				if remainingHeight < height {
-					offsetY = gridHeight - height
-				}
-			}
-			g.rowOffset = row
-			break
-		}
-		offsetY = rowPos[row+1] - add
+	last := len(rowPos) - 1
+	if rowPos[last]+rowHeight[last]+border-offsetY < height {
+		offsetY = rowPos[last] - height + rowHeight[last] + border
 	}
-	for column := 0; column < columns-1; column++ {
-		remainingWidth := gridWidth - offsetX
-		if focus != nil && focus.x-add <= offsetX || // Don't let the focused item move out of screen.
-			column >= g.columnOffset && (focus == nil || focus != nil && focus.x-offsetX < width) || // We've reached the requested offset.
-			remainingWidth <= width { // We have enough space to show the rest.
-			if column > 0 {
-				if focus != nil && focus.x+focus.w+add-offsetX > width {
-					offsetX += focus.x + focus.w + add - offsetX - width
-				} else if remainingWidth < width {
-					offsetX = gridWidth - width
-				}
-			}
-			g.columnOffset = column
-			break
+	last = len(columnPos) - 1
+	if columnPos[last]+columnWidth[last]+border-offsetX < width {
+		offsetX = columnPos[last] - width + columnWidth[last] + border
+	}
+
+	// The focused item must be within the visible area.
+	if focus != nil {
+		if focus.y+focus.h-offsetY >= height {
+			offsetY = focus.y - height + focus.h
 		}
-		offsetX = columnPos[column+1] - add
+		if focus.y-offsetY < 0 {
+			offsetY = focus.y
+		}
+		if focus.x+focus.w-offsetX >= width {
+			offsetX = focus.x - width + focus.w
+		}
+		if focus.x-offsetX < 0 {
+			offsetX = focus.x
+		}
+	}
+
+	// Adjust row/column offsets based on this value.
+	var from, to int
+	for index, pos := range rowPos {
+		if pos-offsetY < 0 {
+			from = index + 1
+		}
+		if pos-offsetY < height {
+			to = index
+		}
+	}
+	if g.rowOffset < from {
+		g.rowOffset = from
+	}
+	if g.rowOffset > to {
+		g.rowOffset = to
+	}
+	from, to = 0, 0
+	for index, pos := range columnPos {
+		if pos-offsetX < 0 {
+			from = index + 1
+		}
+		if pos-offsetX < width {
+			to = index
+		}
+	}
+	if g.columnOffset < from {
+		g.columnOffset = from
+	}
+	if g.columnOffset > to {
+		g.columnOffset = to
 	}
 
 	// Draw primitives and borders.
@@ -556,10 +580,14 @@ func (g *Grid) Draw(screen tcell.Screen) {
 		}
 		item.x -= offsetX
 		item.y -= offsetY
-		if item.x+item.w > x+width {
+		if item.x >= width || item.x+item.w <= 0 || item.y >= height || item.y+item.h <= 0 {
+			item.visible = false
+			continue
+		}
+		if item.x+item.w > width {
 			item.w = width - item.x
 		}
-		if item.y+item.h > y+height {
+		if item.y+item.h > height {
 			item.h = height - item.y
 		}
 		if item.x < 0 {
@@ -574,6 +602,8 @@ func (g *Grid) Draw(screen tcell.Screen) {
 			item.visible = false
 			continue
 		}
+		item.x += x
+		item.y += y
 		primitive.SetRect(item.x, item.y, item.w, item.h)
 
 		// Draw primitive.

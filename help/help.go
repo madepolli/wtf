@@ -3,37 +3,34 @@ package help
 import (
 	"fmt"
 
-	"github.com/wtfutil/wtf/git"
-	"github.com/wtfutil/wtf/github"
-	"github.com/wtfutil/wtf/textfile"
-	"github.com/wtfutil/wtf/todo"
-	"github.com/wtfutil/wtf/todoist"
-	"github.com/wtfutil/wtf/weatherservices/weather"
+	"github.com/olebedev/config"
+	"github.com/wtfutil/wtf/app"
+	"github.com/wtfutil/wtf/utils"
 )
 
-func Display(moduleName string) {
+// Display displays the output of the --help argument
+func Display(moduleName string, cfg *config.Config) {
 	if moduleName == "" {
 		fmt.Println("\n  --module takes a module name as an argument, i.e: '--module=github'")
 	} else {
-		fmt.Printf("%s\n", helpFor(moduleName))
+		fmt.Printf("%s\n", helpFor(moduleName, cfg))
 	}
 }
 
-func helpFor(moduleName string) string {
-	switch moduleName {
-	case "git":
-		return git.HelpText
-	case "github":
-		return github.HelpText
-	case "textfile":
-		return textfile.HelpText
-	case "todo":
-		return todo.HelpText
-	case "todoist":
-		return todoist.HelpText
-	case "weather":
-		return weather.HelpText
-	default:
-		return fmt.Sprintf("\n  There is no help available for '%s'", moduleName)
+func helpFor(moduleName string, cfg *config.Config) string {
+	cfg.Set("wtf.mods."+moduleName+".enabled", true)
+	widget := app.MakeWidget(nil, nil, moduleName, cfg)
+
+	// Since we are forcing enabled config, if no module
+	// exists, we will get the unknown one
+	if widget.CommonSettings().Title == "Unknown" {
+		return "Unable to find module " + moduleName
 	}
+
+	result := ""
+	result += utils.StripColorTags(widget.HelpText())
+	result += "\n"
+	result += "Configuration Attributes"
+	result += widget.ConfigText()
+	return result
 }

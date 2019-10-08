@@ -55,7 +55,7 @@ Refer to https://godoc.org/github.com/rivo/tview for the package's documentation
 
 ## Dependencies
 
-This package is based on [github.com/gdamore/tcell](https://github.com/gdamore/tcell) (and its dependencies).
+This package is based on [github.com/gdamore/tcell](https://github.com/gdamore/tcell) (and its dependencies) as well as on [github.com/rivo/uniseg](https://github.com/rivo/uniseg).
 
 ## Your Feedback
 
@@ -65,6 +65,8 @@ Add your issue here on GitHub. Feel free to get in touch if you have any questio
 
 (There are no corresponding tags in the project. I only keep such a history in this README.)
 
+- v0.20 (2019-07-08)
+  - Added autocomplete functionality to `InputField`.
 - v0.19 (2018-10-28)
   - Added `QueueUpdate()` and `QueueEvent()` to `Application` to help with modifications to primitives from goroutines.
 - v0.18 (2018-10-18)

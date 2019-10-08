@@ -1,4 +1,4 @@
-.PHONY: contrib_check dependencies install run size test
+.PHONY: build contrib_check install binary_msg lint run size test uninstall
 
 # detect GOPATH if not set
 ifndef $(GOPATH)
@@ -16,26 +16,43 @@ ifndef $(GOPATH)
 		endif
 endif
 
+# Set go modules to on and use GoCenter for immutable modules
+export GO111MODULE = on
+export GOPROXY = https://gocenter.io
+
+# Determines the path to this Makefile
+THIS_FILE := $(lastword $(MAKEFILE_LIST))
+
 build:
-	go build -o bin/wtf
+	go build -o bin/wtfutil
+	@$(MAKE) -f $(THIS_FILE) binary_msg
 
 contrib_check:
 	npx all-contributors-cli check
 
 install:
-	go clean
-	go install -ldflags="-s -w -X main.version=$(shell git describe --always --abbrev=6) -X main.date=$(shell date +%FT%T%z)"
-	which wtf
+	@echo "Installing wtfutil..."
+	@go clean
+	@go install -ldflags="-s -w -X main.version=$(shell git describe --always --abbrev=6) -X main.date=$(shell date +%FT%T%z)"
+	@mv ~/go/bin/wtf ~/go/bin/wtfutil
+	@$(MAKE) -f $(THIS_FILE) binary_msg
+
+binary_msg:
+	@echo "Install path: "
+	@which wtfutil || echo "Could not find wtfutil in PATH" && exit 0
 
 lint:
 	structcheck ./...
 	varcheck ./...
 
 run: build
-	bin/wtf
+	bin/wtfutil
 
 size:
-	loc --exclude vendor/ _sample_configs/ _site/ docs/ Makefile *.md *.toml
+	loc --exclude _sample_configs/ _site/ docs/ Makefile *.md
 
 test: build
 	go test ./...
+
+uninstall:
+	@rm ~/go/bin/wtfutil

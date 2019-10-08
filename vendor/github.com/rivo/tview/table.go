@@ -11,6 +11,9 @@ import (
 // directly but all colors (background and text) will be set to their default
 // which is black.
 type TableCell struct {
+	// The reference object.
+	Reference interface{}
+
 	// The text to be displayed in the table cell.
 	Text string
 
@@ -130,6 +133,19 @@ func (c *TableCell) SetStyle(style tcell.Style) *TableCell {
 func (c *TableCell) SetSelectable(selectable bool) *TableCell {
 	c.NotSelectable = !selectable
 	return c
+}
+
+// SetReference allows you to store a reference of any type in this cell. This
+// will allow you to establish a mapping between the cell and your
+// actual data.
+func (c *TableCell) SetReference(reference interface{}) *TableCell {
+	c.Reference = reference
+	return c
+}
+
+// GetReference returns this cell's reference object.
+func (c *TableCell) GetReference() interface{} {
+	return c.Reference
 }
 
 // GetLastPosition returns the position of the table cell the last time it was
@@ -339,9 +355,14 @@ func (t *Table) GetSelection() (row, column int) {
 
 // Select sets the selected cell. Depending on the selection settings
 // specified via SetSelectable(), this may be an entire row or column, or even
-// ignored completely.
+// ignored completely. The "selection changed" event is fired if such a callback
+// is available (even if the selection ends up being the same as before, even if
+// cells are not selectable).
 func (t *Table) Select(row, column int) *Table {
 	t.selectedRow, t.selectedColumn = row, column
+	if t.selectionChanged != nil {
+		t.selectionChanged(row, column)
+	}
 	return t
 }
 
@@ -352,6 +373,7 @@ func (t *Table) Select(row, column int) *Table {
 // Fixed rows and columns are never skipped.
 func (t *Table) SetOffset(row, column int) *Table {
 	t.rowOffset, t.columnOffset = row, column
+	t.trackEnd = false
 	return t
 }
 
@@ -370,10 +392,10 @@ func (t *Table) SetSelectedFunc(handler func(row, column int)) *Table {
 	return t
 }
 
-// SetSelectionChangedFunc sets a handler which is called whenever the user
-// navigates to a new selection. The handler receives the position of the new
-// selection. If entire rows are selected, the column index is undefined.
-// Likewise for entire columns.
+// SetSelectionChangedFunc sets a handler which is called whenever the current
+// selection changes. The handler receives the position of the new selection.
+// If entire rows are selected, the column index is undefined. Likewise for
+// entire columns.
 func (t *Table) SetSelectionChangedFunc(handler func(row, column int)) *Table {
 	t.selectionChanged = handler
 	return t
@@ -423,7 +445,9 @@ func (t *Table) SetCellSimple(row, column int, text string) *Table {
 
 // GetCell returns the contents of the cell at the specified position. A valid
 // TableCell object is always returned but it will be uninitialized if the cell
-// was not previously set.
+// was not previously set. Such an uninitialized object will not automatically
+// be inserted. Therefore, repeated calls to this function may return different
+// pointers for uninitialized cells.
 func (t *Table) GetCell(row, column int) *TableCell {
 	if row >= len(t.cells) || column >= len(t.cells[row]) {
 		return &TableCell{}
@@ -453,6 +477,35 @@ func (t *Table) RemoveColumn(column int) *Table {
 		t.cells[row] = append(t.cells[row][:column], t.cells[row][column+1:]...)
 	}
 
+	return t
+}
+
+// InsertRow inserts a row before the row with the given index. Cells on the
+// given row and below will be shifted to the bottom by one row. If "row" is
+// equal or larger than the current number of rows, this function has no effect.
+func (t *Table) InsertRow(row int) *Table {
+	if row >= len(t.cells) {
+		return t
+	}
+	t.cells = append(t.cells, nil)       // Extend by one.
+	copy(t.cells[row+1:], t.cells[row:]) // Shift down.
+	t.cells[row] = nil                   // New row is uninitialized.
+	return t
+}
+
+// InsertColumn inserts a column before the column with the given index. Cells
+// in the given column and to its right will be shifted to the right by one
+// column. Rows that have fewer initialized cells than "column" will remain
+// unchanged.
+func (t *Table) InsertColumn(column int) *Table {
+	for row := range t.cells {
+		if column >= len(t.cells[row]) {
+			continue
+		}
+		t.cells[row] = append(t.cells[row], nil)             // Extend by one.
+		copy(t.cells[row][column+1:], t.cells[row][column:]) // Shift to the right.
+		t.cells[row][column] = &TableCell{}                  // New element is an uninitialized table cell.
+	}
 	return t
 }
 
@@ -650,7 +703,7 @@ ColumnLoop:
 		expansion := 0
 		for _, row := range rows {
 			if cell := getCell(row, column); cell != nil {
-				_, _, _, _, cellWidth := decomposeString(cell.Text)
+				_, _, _, _, _, _, cellWidth := decomposeString(cell.Text, true, false)
 				if cell.MaxWidth > 0 && cell.MaxWidth < cellWidth {
 					cellWidth = cell.MaxWidth
 				}
@@ -744,7 +797,7 @@ ColumnLoop:
 			}
 			cell.x, cell.y, cell.width = x+columnX+1, y+rowY, finalWidth
 			_, printed := printWithStyle(screen, cell.Text, x+columnX+1, y+rowY, finalWidth, cell.Align, tcell.StyleDefault.Foreground(cell.Color)|tcell.Style(cell.Attributes))
-			if StringWidth(cell.Text)-printed > 0 && printed > 0 {
+			if TaggedStringWidth(cell.Text)-printed > 0 && printed > 0 {
 				_, _, style, _ := screen.GetContent(x+columnX+1+finalWidth-1, y+rowY)
 				printWithStyle(screen, string(SemigraphicsHorizontalEllipsis), x+columnX+1+finalWidth-1, y+rowY, 1, AlignLeft, style)
 			}

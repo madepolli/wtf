@@ -1,21 +1,26 @@
 package wtf
 
 import (
+	"github.com/wtfutil/wtf/cfg"
+
 	"github.com/rivo/tview"
 )
 
+// Wtfable is the interface that enforces WTF system capabilities on a module
 type Wtfable interface {
-	Enabler
-	Scheduler
+	Enablable
+	Schedulable
+	Stoppable
 
 	BorderColor() string
-	Focusable() bool
+	ConfigText() string
 	FocusChar() string
+	Focusable() bool
+	HelpText() string
+	QuitChan() chan bool
+	Name() string
 	SetFocusChar(string)
 	TextView() *tview.TextView
 
-	Top() int
-	Left() int
-	Width() int
-	Height() int
+	CommonSettings() *cfg.Common
 }

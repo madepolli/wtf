@@ -1,4 +1,4 @@
-// Copyright 2019 Google Inc. All rights reserved.
+// Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -6,13 +6,39 @@
 
 // Package calendar provides access to the Calendar API.
 //
-// See https://developers.google.com/google-apps/calendar/firstapp
+// For product documentation, see: https://developers.google.com/google-apps/calendar/firstapp
+//
+// Creating a client
 //
 // Usage example:
 //
 //   import "google.golang.org/api/calendar/v3"
 //   ...
-//   calendarService, err := calendar.New(oauthHttpClient)
+//   ctx := context.Background()
+//   calendarService, err := calendar.NewService(ctx)
+//
+// In this example, Google Application Default Credentials are used for authentication.
+//
+// For information on how to create and obtain Application Default Credentials, see https://developers.google.com/identity/protocols/application-default-credentials.
+//
+// Other authentication options
+//
+// By default, all available scopes (see "Constants") are used to authenticate. To restrict scopes, use option.WithScopes:
+//
+//   calendarService, err := calendar.NewService(ctx, option.WithScopes(calendar.CalendarSettingsReadonlyScope))
+//
+// To use an API key for authentication (note: some APIs do not support API keys), use option.WithAPIKey:
+//
+//   calendarService, err := calendar.NewService(ctx, option.WithAPIKey("AIza..."))
+//
+// To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
+//
+//   config := &oauth2.Config{...}
+//   // ...
+//   token, err := config.Exchange(ctx, ...)
+//   calendarService, err := calendar.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+//
+// See https://godoc.org/google.golang.org/api/option/ for details on options.
 package calendar // import "google.golang.org/api/calendar/v3"
 
 import (
@@ -29,6 +55,8 @@ import (
 
 	gensupport "google.golang.org/api/gensupport"
 	googleapi "google.golang.org/api/googleapi"
+	option "google.golang.org/api/option"
+	htransport "google.golang.org/api/transport/http"
 )
 
 // Always reference these packages, just in case the auto-generated code
@@ -69,6 +97,36 @@ const (
 	CalendarSettingsReadonlyScope = "https://www.googleapis.com/auth/calendar.settings.readonly"
 )
 
+// NewService creates a new Service.
+func NewService(ctx context.Context, opts ...option.ClientOption) (*Service, error) {
+	scopesOption := option.WithScopes(
+		"https://www.googleapis.com/auth/calendar",
+		"https://www.googleapis.com/auth/calendar.events",
+		"https://www.googleapis.com/auth/calendar.events.readonly",
+		"https://www.googleapis.com/auth/calendar.readonly",
+		"https://www.googleapis.com/auth/calendar.settings.readonly",
+	)
+	// NOTE: prepend, so we don't override user-specified scopes.
+	opts = append([]option.ClientOption{scopesOption}, opts...)
+	client, endpoint, err := htransport.NewClient(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
+	s, err := New(client)
+	if err != nil {
+		return nil, err
+	}
+	if endpoint != "" {
+		s.BasePath = endpoint
+	}
+	return s, nil
+}
+
+// New creates a new Service. It uses the provided http.Client for requests.
+//
+// Deprecated: please use NewService instead.
+// To provide a custom HTTP client, use option.WithHTTPClient.
+// If you are using google.golang.org/api/googleapis/transport.APIKey, use option.WithAPIKey with NewService instead.
 func New(client *http.Client) (*Service, error) {
 	if client == nil {
 		return nil, errors.New("client is nil")
@@ -643,7 +701,7 @@ type Channel struct {
 	Id string `json:"id,omitempty"`
 
 	// Kind: Identifies this as a notification channel used to watch for
-	// changes to a resource. Value: the fixed string "api#channel".
+	// changes to a resource, which is "api#channel".
 	Kind string `json:"kind,omitempty"`
 
 	// Params: Additional parameters controlling delivery channel behavior.
@@ -814,7 +872,7 @@ type ConferenceData struct {
 	Parameters *ConferenceParameters `json:"parameters,omitempty"`
 
 	// Signature: The signature of the conference data.
-	// Genereated on server side. Must be preserved while copying the
+	// Generated on server side. Must be preserved while copying the
 	// conference data between events, otherwise the conference data will
 	// not be copied.
 	// Unset for a conference with a failed create request.
@@ -2368,6 +2426,7 @@ func (c *AclDeleteCall) Header() http.Header {
 
 func (c *AclDeleteCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190802")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -2488,6 +2547,7 @@ func (c *AclGetCall) Header() http.Header {
 
 func (c *AclGetCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190802")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -2637,6 +2697,7 @@ func (c *AclInsertCall) Header() http.Header {
 
 func (c *AclInsertCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190802")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -2828,6 +2889,7 @@ func (c *AclListCall) Header() http.Header {
 
 func (c *AclListCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190802")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -3016,6 +3078,7 @@ func (c *AclPatchCall) Header() http.Header {
 
 func (c *AclPatchCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190802")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -3177,6 +3240,7 @@ func (c *AclUpdateCall) Header() http.Header {
 
 func (c *AclUpdateCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190802")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -3367,6 +3431,7 @@ func (c *AclWatchCall) Header() http.Header {
 
 func (c *AclWatchCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190802")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -3526,6 +3591,7 @@ func (c *CalendarListDeleteCall) Header() http.Header {
 
 func (c *CalendarListDeleteCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190802")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -3636,6 +3702,7 @@ func (c *CalendarListGetCall) Header() http.Header {
 
 func (c *CalendarListGetCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190802")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -3777,6 +3844,7 @@ func (c *CalendarListInsertCall) Header() http.Header {
 
 func (c *CalendarListInsertCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190802")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -3979,6 +4047,7 @@ func (c *CalendarListListCall) Header() http.Header {
 
 func (c *CalendarListListCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190802")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -4177,6 +4246,7 @@ func (c *CalendarListPatchCall) Header() http.Header {
 
 func (c *CalendarListPatchCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190802")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -4329,6 +4399,7 @@ func (c *CalendarListUpdateCall) Header() http.Header {
 
 func (c *CalendarListUpdateCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190802")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -4534,6 +4605,7 @@ func (c *CalendarListWatchCall) Header() http.Header {
 
 func (c *CalendarListWatchCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190802")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -4705,6 +4777,7 @@ func (c *CalendarsClearCall) Header() http.Header {
 
 func (c *CalendarsClearCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190802")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -4805,6 +4878,7 @@ func (c *CalendarsDeleteCall) Header() http.Header {
 
 func (c *CalendarsDeleteCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190802")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -4915,6 +4989,7 @@ func (c *CalendarsGetCall) Header() http.Header {
 
 func (c *CalendarsGetCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190802")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -5046,6 +5121,7 @@ func (c *CalendarsInsertCall) Header() http.Header {
 
 func (c *CalendarsInsertCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190802")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -5170,6 +5246,7 @@ func (c *CalendarsPatchCall) Header() http.Header {
 
 func (c *CalendarsPatchCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190802")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -5307,6 +5384,7 @@ func (c *CalendarsUpdateCall) Header() http.Header {
 
 func (c *CalendarsUpdateCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190802")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -5442,6 +5520,7 @@ func (c *ChannelsStopCall) Header() http.Header {
 
 func (c *ChannelsStopCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190802")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -5549,6 +5628,7 @@ func (c *ColorsGetCall) Header() http.Header {
 
 func (c *ColorsGetCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190802")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -5694,6 +5774,7 @@ func (c *EventsDeleteCall) Header() http.Header {
 
 func (c *EventsDeleteCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190802")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -5863,6 +5944,7 @@ func (c *EventsGetCall) Header() http.Header {
 
 func (c *EventsGetCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190802")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -6044,6 +6126,7 @@ func (c *EventsImportCall) Header() http.Header {
 
 func (c *EventsImportCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190802")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -6251,6 +6334,7 @@ func (c *EventsInsertCall) Header() http.Header {
 
 func (c *EventsInsertCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190802")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -6517,6 +6601,7 @@ func (c *EventsInstancesCall) Header() http.Header {
 
 func (c *EventsInstancesCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190802")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -6853,20 +6938,20 @@ func (c *EventsListCall) SyncToken(syncToken string) *EventsListCall {
 // TimeMax sets the optional parameter "timeMax": Upper bound
 // (exclusive) for an event's start time to filter by.  The default is
 // not to filter by start time. Must be an RFC3339 timestamp with
-// mandatory time zone offset, e.g., 2011-06-03T10:00:00-07:00,
-// 2011-06-03T10:00:00Z. Milliseconds may be provided but will be
-// ignored. If timeMin is set, timeMax must be greater than timeMin.
+// mandatory time zone offset, for example, 2011-06-03T10:00:00-07:00,
+// 2011-06-03T10:00:00Z. Milliseconds may be provided but are ignored.
+// If timeMin is set, timeMax must be greater than timeMin.
 func (c *EventsListCall) TimeMax(timeMax string) *EventsListCall {
 	c.urlParams_.Set("timeMax", timeMax)
 	return c
 }
 
 // TimeMin sets the optional parameter "timeMin": Lower bound
-// (inclusive) for an event's end time to filter by.  The default is not
+// (exclusive) for an event's end time to filter by.  The default is not
 // to filter by end time. Must be an RFC3339 timestamp with mandatory
-// time zone offset, e.g., 2011-06-03T10:00:00-07:00,
-// 2011-06-03T10:00:00Z. Milliseconds may be provided but will be
-// ignored. If timeMax is set, timeMin must be smaller than timeMax.
+// time zone offset, for example, 2011-06-03T10:00:00-07:00,
+// 2011-06-03T10:00:00Z. Milliseconds may be provided but are ignored.
+// If timeMax is set, timeMin must be smaller than timeMax.
 func (c *EventsListCall) TimeMin(timeMin string) *EventsListCall {
 	c.urlParams_.Set("timeMin", timeMin)
 	return c
@@ -6926,6 +7011,7 @@ func (c *EventsListCall) Header() http.Header {
 
 func (c *EventsListCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190802")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -7081,13 +7167,13 @@ func (c *EventsListCall) Do(opts ...googleapi.CallOption) (*Events, error) {
 	//       "type": "string"
 	//     },
 	//     "timeMax": {
-	//       "description": "Upper bound (exclusive) for an event's start time to filter by. Optional. The default is not to filter by start time. Must be an RFC3339 timestamp with mandatory time zone offset, e.g., 2011-06-03T10:00:00-07:00, 2011-06-03T10:00:00Z. Milliseconds may be provided but will be ignored. If timeMin is set, timeMax must be greater than timeMin.",
+	//       "description": "Upper bound (exclusive) for an event's start time to filter by. Optional. The default is not to filter by start time. Must be an RFC3339 timestamp with mandatory time zone offset, for example, 2011-06-03T10:00:00-07:00, 2011-06-03T10:00:00Z. Milliseconds may be provided but are ignored. If timeMin is set, timeMax must be greater than timeMin.",
 	//       "format": "date-time",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
 	//     "timeMin": {
-	//       "description": "Lower bound (inclusive) for an event's end time to filter by. Optional. The default is not to filter by end time. Must be an RFC3339 timestamp with mandatory time zone offset, e.g., 2011-06-03T10:00:00-07:00, 2011-06-03T10:00:00Z. Milliseconds may be provided but will be ignored. If timeMax is set, timeMin must be smaller than timeMax.",
+	//       "description": "Lower bound (exclusive) for an event's end time to filter by. Optional. The default is not to filter by end time. Must be an RFC3339 timestamp with mandatory time zone offset, for example, 2011-06-03T10:00:00-07:00, 2011-06-03T10:00:00Z. Milliseconds may be provided but are ignored. If timeMax is set, timeMin must be smaller than timeMax.",
 	//       "format": "date-time",
 	//       "location": "query",
 	//       "type": "string"
@@ -7215,6 +7301,7 @@ func (c *EventsMoveCall) Header() http.Header {
 
 func (c *EventsMoveCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190802")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -7450,6 +7537,7 @@ func (c *EventsPatchCall) Header() http.Header {
 
 func (c *EventsPatchCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190802")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -7666,6 +7754,7 @@ func (c *EventsQuickAddCall) Header() http.Header {
 
 func (c *EventsQuickAddCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190802")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -7893,6 +7982,7 @@ func (c *EventsUpdateCall) Header() http.Header {
 
 func (c *EventsUpdateCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190802")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -8205,20 +8295,20 @@ func (c *EventsWatchCall) SyncToken(syncToken string) *EventsWatchCall {
 // TimeMax sets the optional parameter "timeMax": Upper bound
 // (exclusive) for an event's start time to filter by.  The default is
 // not to filter by start time. Must be an RFC3339 timestamp with
-// mandatory time zone offset, e.g., 2011-06-03T10:00:00-07:00,
-// 2011-06-03T10:00:00Z. Milliseconds may be provided but will be
-// ignored. If timeMin is set, timeMax must be greater than timeMin.
+// mandatory time zone offset, for example, 2011-06-03T10:00:00-07:00,
+// 2011-06-03T10:00:00Z. Milliseconds may be provided but are ignored.
+// If timeMin is set, timeMax must be greater than timeMin.
 func (c *EventsWatchCall) TimeMax(timeMax string) *EventsWatchCall {
 	c.urlParams_.Set("timeMax", timeMax)
 	return c
 }
 
 // TimeMin sets the optional parameter "timeMin": Lower bound
-// (inclusive) for an event's end time to filter by.  The default is not
+// (exclusive) for an event's end time to filter by.  The default is not
 // to filter by end time. Must be an RFC3339 timestamp with mandatory
-// time zone offset, e.g., 2011-06-03T10:00:00-07:00,
-// 2011-06-03T10:00:00Z. Milliseconds may be provided but will be
-// ignored. If timeMax is set, timeMin must be smaller than timeMax.
+// time zone offset, for example, 2011-06-03T10:00:00-07:00,
+// 2011-06-03T10:00:00Z. Milliseconds may be provided but are ignored.
+// If timeMax is set, timeMin must be smaller than timeMax.
 func (c *EventsWatchCall) TimeMin(timeMin string) *EventsWatchCall {
 	c.urlParams_.Set("timeMin", timeMin)
 	return c
@@ -8268,6 +8358,7 @@ func (c *EventsWatchCall) Header() http.Header {
 
 func (c *EventsWatchCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190802")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -8425,13 +8516,13 @@ func (c *EventsWatchCall) Do(opts ...googleapi.CallOption) (*Channel, error) {
 	//       "type": "string"
 	//     },
 	//     "timeMax": {
-	//       "description": "Upper bound (exclusive) for an event's start time to filter by. Optional. The default is not to filter by start time. Must be an RFC3339 timestamp with mandatory time zone offset, e.g., 2011-06-03T10:00:00-07:00, 2011-06-03T10:00:00Z. Milliseconds may be provided but will be ignored. If timeMin is set, timeMax must be greater than timeMin.",
+	//       "description": "Upper bound (exclusive) for an event's start time to filter by. Optional. The default is not to filter by start time. Must be an RFC3339 timestamp with mandatory time zone offset, for example, 2011-06-03T10:00:00-07:00, 2011-06-03T10:00:00Z. Milliseconds may be provided but are ignored. If timeMin is set, timeMax must be greater than timeMin.",
 	//       "format": "date-time",
 	//       "location": "query",
 	//       "type": "string"
 	//     },
 	//     "timeMin": {
-	//       "description": "Lower bound (inclusive) for an event's end time to filter by. Optional. The default is not to filter by end time. Must be an RFC3339 timestamp with mandatory time zone offset, e.g., 2011-06-03T10:00:00-07:00, 2011-06-03T10:00:00Z. Milliseconds may be provided but will be ignored. If timeMax is set, timeMin must be smaller than timeMax.",
+	//       "description": "Lower bound (exclusive) for an event's end time to filter by. Optional. The default is not to filter by end time. Must be an RFC3339 timestamp with mandatory time zone offset, for example, 2011-06-03T10:00:00-07:00, 2011-06-03T10:00:00Z. Milliseconds may be provided but are ignored. If timeMax is set, timeMin must be smaller than timeMax.",
 	//       "format": "date-time",
 	//       "location": "query",
 	//       "type": "string"
@@ -8511,6 +8602,7 @@ func (c *FreebusyQueryCall) Header() http.Header {
 
 func (c *FreebusyQueryCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190802")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -8644,6 +8736,7 @@ func (c *SettingsGetCall) Header() http.Header {
 
 func (c *SettingsGetCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190802")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -8814,6 +8907,7 @@ func (c *SettingsListCall) Header() http.Header {
 
 func (c *SettingsListCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190802")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
@@ -9002,6 +9096,7 @@ func (c *SettingsWatchCall) Header() http.Header {
 
 func (c *SettingsWatchCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders := make(http.Header)
+	reqHeaders.Set("x-goog-api-client", "gl-go/1.11.0 gdcl/20190802")
 	for k, v := range c.header_ {
 		reqHeaders[k] = v
 	}
