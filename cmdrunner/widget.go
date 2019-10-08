@@ -34,7 +34,7 @@ func (widget *Widget) Refresh() {
 	widget.execute()
 
 	title := tview.TranslateANSI(wtf.Config.UString("wtf.mods.cmdrunner.title", widget.String()))
-	widget.View.SetTitle(title)
+	widget.View.SetTitle(fmt.Sprintf(" %s ", title))
 
 	widget.View.SetText(widget.result)
 }

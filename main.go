@@ -22,6 +22,7 @@ import (
 	"github.com/wtfutil/wtf/circleci"
 	"github.com/wtfutil/wtf/clocks"
 	"github.com/wtfutil/wtf/cmdrunner"
+	"github.com/wtfutil/wtf/cmdrunner2"
 	"github.com/wtfutil/wtf/cryptoexchanges/bittrex"
 	"github.com/wtfutil/wtf/cryptoexchanges/blockfolio"
 	"github.com/wtfutil/wtf/cryptoexchanges/cryptolive"
@@ -185,6 +186,24 @@ func addWidget(app *tview.Application, pages *tview.Pages, widgetName string) {
 		widgets = append(widgets, clocks.NewWidget(app))
 	case "cmdrunner":
 		widgets = append(widgets, cmdrunner.NewWidget(app))
+	case "cmdrunner2":
+		widgets = append(widgets, cmdrunner2.NewWidget(app, 2))
+	case "cmdrunner3":
+		widgets = append(widgets, cmdrunner2.NewWidget(app, 3))
+	case "cmdrunner4":
+		widgets = append(widgets, cmdrunner2.NewWidget(app, 4))
+	case "cmdrunner5":
+		widgets = append(widgets, cmdrunner2.NewWidget(app, 5))
+	case "cmdrunner6":
+		widgets = append(widgets, cmdrunner2.NewWidget(app, 6))
+	case "cmdrunner7":
+		widgets = append(widgets, cmdrunner2.NewWidget(app, 7))
+	case "cmdrunner8":
+		widgets = append(widgets, cmdrunner2.NewWidget(app, 8))
+	case "cmdrunner9":
+		widgets = append(widgets, cmdrunner2.NewWidget(app, 9))
+	case "cmdrunner0":
+		widgets = append(widgets, cmdrunner2.NewWidget(app, 0))
 	case "resourceusage":
 		widgets = append(widgets, resourceusage.NewWidget(app))
 	case "cryptolive":

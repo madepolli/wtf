@@ -22,7 +22,7 @@ type Widget struct {
 // NewWidget Make new instance of widget
 func NewWidget(app *tview.Application) *Widget {
 	widget := Widget{
-		BarGraph: wtf.NewBarGraph(app, "Resource Usage", "resourceusage", false),
+		BarGraph: wtf.NewBarGraph(app, " Resource Usage ", "resourceusage", false),
 	}
 
 	widget.View.SetWrap(false)
@@ -36,7 +36,7 @@ func NewWidget(app *tview.Application) *Widget {
 // MakeGraph - Load the dead drop stats
 func MakeGraph(widget *Widget) {
 
-	cpuStats, err := cpu.Percent(time.Duration(0), true)
+	cpuStats, err := cpu.Percent(time.Duration(0), false)
 	if err != nil {
 		return
 	}
@@ -101,6 +101,26 @@ func MakeGraph(widget *Widget) {
 
 }
 
+// MakeGraph - Load the dead drop stats
+func Test(widget *Widget) {
+	cpuStats, err := cpu.Percent(time.Duration(0), false)
+	if err != nil {
+		return
+	}
+	
+	var stats = make([]wtf.Bar, 1)
+	
+		stats[0] = wtf.Bar{
+			Label:      fmt.Sprint("CPU"),
+			Percent:    int(cpuStats[0]),
+			ValueLabel: fmt.Sprintf("aaa"),
+		}
+	
+	
+	//widget.View.Clear()
+	widget.BarGraph.BuildBars(stats[:])
+}
+
 // Refresh & update after interval time
 func (widget *Widget) Refresh() {
 
@@ -108,10 +128,10 @@ func (widget *Widget) Refresh() {
 		return
 	}
 
-	widget.View.Clear()
+	//widget.View.Clear()
 
 	display(widget)
-
+	//Test(widget)
 }
 
 /* -------------------- Unexported Functions -------------------- */

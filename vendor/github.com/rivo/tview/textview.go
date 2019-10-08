@@ -726,6 +726,13 @@ func (t *TextView) reindexBuffer(width int) {
 	}
 }
 
+func rescueIndexOOB() {
+      r := recover() // We stopped here the failing process!!!
+      if r != nil {
+             fmt.Println("Panic has been recovered")
+      }
+}
+
 // Draw draws this primitive onto the screen.
 func (t *TextView) Draw(screen tcell.Screen) {
 	t.Lock()
@@ -822,6 +829,8 @@ func (t *TextView) Draw(screen tcell.Screen) {
 		}
 
 		// Get the text for this line.
+		defer rescueIndexOOB()
+		
 		index := t.index[line]
 		text := t.buffer[index.Line][index.Pos:index.NextPos]
 		foregroundColor := index.ForegroundColor

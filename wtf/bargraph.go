@@ -114,7 +114,7 @@ func (widget *BarGraph) addView(app *tview.Application, configKey string) {
 // BuildBars will build a string of * to represent your data of [time][value]
 // time should be passed as a int64
 func (widget *BarGraph) BuildBars(data []Bar) {
-
+	
 	widget.View.SetText(BuildStars(data, widget.maxStars, widget.starChar))
 
 }
