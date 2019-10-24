@@ -53,8 +53,6 @@ func setTerm(config *config.Config) {
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
-	// Manage the configuration directories and config file
-
 	// Parse and handle flags
 	flags := flags.NewFlags()
 	flags.Parse()
@@ -71,7 +69,8 @@ func main() {
 		defer profile.Start(profile.MemProfile).Stop()
 	}
 
-	utils.Init(config.UString("wtf.openFileUtil", "open"))
+	openUrlUtil := utils.ToStrs(config.UList("wtf.openUrlUtil", []interface{}{}))
+	utils.Init(config.UString("wtf.openFileUtil", "open"), openUrlUtil)
 
 	setTerm(config)
 

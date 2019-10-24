@@ -4,6 +4,19 @@
 
 ### ⚡️ Added
 
+* Proper, usable Docker file added, by [@Boot-Error](https://github.com/Boot-Error)
+* [GitLab](https://wtfutil.com/modules/gitlab/) module displays issues assigned to, and opened by, the user, by [@caalberts](https://github.com/caalberts)
+* TravisCI now checks for uncommitted vendor changes, by [@indradhanush](https://github.com/indradhanush)
+
+### 🐞 Fixed
+
+* Github PRs do not count against issues, by [@alexfornuto](https://github.com/alexfornuto)
+* Todo scrolling now works properly, [#707](https://github.com/wtfutil/wtf/issues/707) by [3mard](https://github.com/3mard)
+
+## 0.23.0
+
+### ⚡️ Added
+
 * [Azure DevOps](https://wtfutil.com/modules/azure-devops/) module added, by [@v-braun](https://github.com/v-braun)
 * [Dev.to](https://wtfutil.com/modules/devto/) module added, by [@VictorAvelar](https://github.com/VictorAvelar)
 * [TravisCI]() module now supports enterprise endpoints, [#652](https://github.com/wtfutil/wtf/issues/652) by [@scw007](https://github.com/scw007)
@@ -12,6 +25,7 @@
 * [Scarf](https://scarf.sh) installation instructions added to README, by [@aviaviavi](https://github.com/aviaviavi)
 * Spotify widget now supports colour themes, [#659](https://github.com/wtfutil/wtf/issues/659) by [@Tardog](https://github.com/Tardog)
 * [Buildkite](https://wtfutil.com/modules/buildkite/) module added, by [@jmks](https://github.com/jmks)
+* [Improvements](https://github.com/wtfutil/wtf/pull/680) to the [CmdRunner](https://wtfutil.com/modules/cmdrunner/) module, by [@noxer](https://github.com/noxer)
 
 ### 🐞 Fixed
 
@@ -20,6 +34,9 @@
 * [Transmission](https://wtfutil.com/modules/transmission/) module no longer blocks rendering when a Transmission daemon cannot be found, [#661](https://github.com/wtfutil/wtf/issues/661) by [@senorprogrammer](https://github.com/senorprogrammer)
 * [Trello](https://wtfutil.com/modules/trello/) module now respects project list order, [#664](https://github.com/wtfutil/wtf/issues/664) by [@Seanstoppable](https://github.com/Seanstoppable)
 * [Todo](https://wtfutil.com/modules/todo/) module now respects checkbox settings, [#616](https://github.com/wtfutil/wtf/issues/616) by [@Seanstoppable](https://github.com/Seanstoppable)
+* [Todoist](https://wtfutil.com/modules/todoist/) module now properly handles todo items with due date and times, [#645](https://github.com/wtfutil/wtf/issues/645) by [@massa1240](https://github.com/massa1240)
+* Invalid pointer error in [Azure DevOps](https://wtfutil.com/modules/azure-devops/) fixed by [@Boot-Error](https://github.com/Boot-Error)
+* Renamed slice error in [Dev](https://wtfutil.com/modules/devto/) fixed by [@Boot-Error](https://github.com/Boot-Error)
 
 ### 👍 Updated
 

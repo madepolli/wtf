@@ -3,13 +3,14 @@ package utils
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"os/exec"
 	"regexp"
 	"runtime"
 	"strings"
+
+	"github.com/olebedev/config"
 )
 
 const (
@@ -46,26 +47,14 @@ func ExecuteCommand(cmd *exec.Cmd) string {
 		return ""
 	}
 
-	stdout, err := cmd.StdoutPipe()
-	if err != nil {
-		return fmt.Sprintf("%v\n", err)
+	buf := &bytes.Buffer{}
+	cmd.Stdout = buf
+
+	if err := cmd.Run(); err != nil {
+		return err.Error()
 	}
 
-	if err := cmd.Start(); err != nil {
-		return fmt.Sprintf("%v\n", err)
-	}
-
-	var str string
-	if b, err := ioutil.ReadAll(stdout); err == nil {
-		str += string(b)
-	}
-
-	err = cmd.Wait()
-	if err != nil {
-		return fmt.Sprintf("%v\n", err)
-	}
-
-	return str
+	return buf.String()
 }
 
 // FindMatch takes a regex pattern and a string of data and returns back all the matches
@@ -98,6 +87,12 @@ func Includes(strs []string, val string) bool {
 // OpenFile opens the file defined in `path` via the operating system
 func OpenFile(path string) {
 	if (strings.HasPrefix(path, "http://")) || (strings.HasPrefix(path, "https://")) {
+		if len(OpenUrlUtil) > 0 {
+			commands := append(OpenUrlUtil, path)
+			args := commands[1:len(commands)]
+			exec.Command(commands[0], args...).Start()
+			return
+		}
 		switch runtime.GOOS {
 		case "linux":
 			exec.Command("xdg-open", path).Start()
@@ -128,19 +123,56 @@ func ReadFileBytes(filePath string) ([]byte, error) {
 
 // ParseJson is a standard JSON reader from text
 func ParseJson(obj interface{}, text io.Reader) error {
-	jsonStream, err := ioutil.ReadAll(text)
-	if err != nil {
-		return err
+	d := json.NewDecoder(text)
+	return d.Decode(obj)
+}
+
+// CalculateDimensions reads the module dimensions from the module and global config. The border is already substracted.
+func CalculateDimensions(moduleConfig, globalConfig *config.Config) (int, int) {
+	// Read the source data from the config
+	left := moduleConfig.UInt("position.left", 0)
+	top := moduleConfig.UInt("position.top", 0)
+	width := moduleConfig.UInt("position.width", 0)
+	height := moduleConfig.UInt("position.height", 0)
+
+	cols := ToInts(globalConfig.UList("wtf.grid.columns"))
+	rows := ToInts(globalConfig.UList("wtf.grid.rows"))
+
+	// Make sure the values are in bounds
+	left = clamp(left, 0, len(cols)-1)
+	top = clamp(top, 0, len(rows)-1)
+	width = clamp(width, 0, len(cols)-left)
+	height = clamp(height, 0, len(rows)-top)
+
+	// Start with the border subtracted and add all the spanned rows and cols
+	w, h := -2, -2
+	for _, x := range cols[left : left+width] {
+		w += x
+	}
+	for _, y := range rows[top : top+height] {
+		h += y
 	}
 
-	decoder := json.NewDecoder(bytes.NewReader(jsonStream))
+	// The usable space may be empty
+	w = max(w, 0)
+	h = max(h, 0)
 
-	for {
-		if err := decoder.Decode(obj); err == io.EOF {
-			break
-		} else if err != nil {
-			return err
-		}
+	return w, h
+}
+
+func max(a, b int) int {
+	if a > b {
+		return a
 	}
-	return nil
+	return b
+}
+
+func clamp(x, a, b int) int {
+	if a > x {
+		return a
+	}
+	if b < x {
+		return b
+	}
+	return x
 }

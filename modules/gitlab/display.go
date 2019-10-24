@@ -22,11 +22,17 @@ func (widget *Widget) content() (string, string, bool) {
 	str += " [red]Stats[white]\n"
 	str += widget.displayStats(project)
 	str += "\n"
-	str += " [red]Open Approval Requests[white]\n"
-	str += widget.displayMyApprovalRequests(project, widget.settings.username)
+	str += " [red]Open Assigned Merge Requests[white]\n"
+	str += widget.displayMyAssignedMergeRequests(project, widget.settings.username)
 	str += "\n"
 	str += " [red]My Merge Requests[white]\n"
 	str += widget.displayMyMergeRequests(project, widget.settings.username)
+	str += "\n"
+	str += " [red]Open Assigned Issues[white]\n"
+	str += widget.displayMyAssignedIssues(project, widget.settings.username)
+	str += "\n"
+	str += " [red]My Issues[white]\n"
+	str += widget.displayMyIssues(project, widget.settings.username)
 
 	return title, str, false
 }
@@ -46,8 +52,8 @@ func (widget *Widget) displayMyMergeRequests(project *GitlabProject, username st
 	return str
 }
 
-func (widget *Widget) displayMyApprovalRequests(project *GitlabProject, username string) string {
-	mrs := project.myApprovalRequests(username)
+func (widget *Widget) displayMyAssignedMergeRequests(project *GitlabProject, username string) string {
+	mrs := project.myAssignedMergeRequests(username)
 
 	if len(mrs) == 0 {
 		return " [grey]none[white]\n"
@@ -56,6 +62,36 @@ func (widget *Widget) displayMyApprovalRequests(project *GitlabProject, username
 	str := ""
 	for _, mr := range mrs {
 		str += fmt.Sprintf(" [green]%4d[white] %s\n", mr.IID, mr.Title)
+	}
+
+	return str
+}
+
+func (widget *Widget) displayMyAssignedIssues(project *GitlabProject, username string) string {
+	issues := project.myAssignedIssues(username)
+
+	if len(issues) == 0 {
+		return " [grey]none[white]\n"
+	}
+
+	str := ""
+	for _, issue := range issues {
+		str += fmt.Sprintf(" [green]%4d[white] %s\n", issue.IID, issue.Title)
+	}
+
+	return str
+}
+
+func (widget *Widget) displayMyIssues(project *GitlabProject, username string) string {
+	issues := project.myIssues(username)
+
+	if len(issues) == 0 {
+		return " [grey]none[white]\n"
+	}
+
+	str := ""
+	for _, issue := range issues {
+		str += fmt.Sprintf(" [green]%4d[white] %s\n", issue.IID, issue.Title)
 	}
 
 	return str
