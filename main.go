@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"time"
+//	"time"
 
 	"github.com/logrusorgru/aurora"
 	"github.com/olebedev/config"
@@ -56,7 +56,7 @@ func main() {
 	// Parse and handle flags
 	flags := flags.NewFlags()
 	flags.Parse()
-	flags.Display(version)
+	//flags.Display(version)
 
 	hasCustom := flags.HasCustomConfig()
 	cfg.Initialize(hasCustom)
