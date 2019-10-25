@@ -45,7 +45,7 @@ func NewWidget(app *tview.Application, settings *Settings) *Widget {
 // MakeGraph - Load the dead drop stats
 func MakeGraph(widget *Widget) {
 
-	cpuStats, err := cpu.Percent(time.Duration(0), true)
+	cpuStats, err := cpu.Percent(time.Duration(0), !widget.settings.cpuCombined)
 	if err != nil {
 		return
 	}
@@ -57,8 +57,15 @@ func MakeGraph(widget *Widget) {
 		stat = math.Min(100, stat)
 		stat = math.Max(0, stat)
 
+		var label string
+		if (widget.settings.cpuCombined) {
+			label = "CPU"
+		} else {
+			label = fmt.Sprint(i)
+		}
+		
 		bar := view.Bar{
-			Label:      fmt.Sprint(i),
+			Label:      label,
 			Percent:    int(stat),
 			ValueLabel: fmt.Sprintf("%d%%", int(stat)),
 			LabelColor: "red",
@@ -120,10 +127,9 @@ func (widget *Widget) Refresh() {
 		return
 	}
 
-	widget.View.Clear()
-
 	widget.app.QueueUpdateDraw(func() {
-	display(widget)
+		widget.View.Clear()	
+		display(widget)
 	})
 }
 
