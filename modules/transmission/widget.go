@@ -45,9 +45,6 @@ func NewWidget(app *tview.Application, pages *tview.Pages, settings *Settings) *
 
 // Fetch retrieves torrent data from the Transmission daemon
 func (widget *Widget) Fetch() ([]*transmissionrpc.Torrent, error) {
-	widget.mu.Lock()
-	widget.mu.Unlock()
-
 	if widget.client == nil {
 		return nil, errors.New("client was not initialized")
 	}
@@ -57,7 +54,20 @@ func (widget *Widget) Fetch() ([]*transmissionrpc.Torrent, error) {
 		return nil, err
 	}
 
-	return torrents, nil
+	if !widget.settings.hideComplete {
+		return torrents, nil
+	}
+
+	out := make([]*transmissionrpc.Torrent, 0)
+	for _, torrent := range torrents {
+		if *torrent.PercentDone == 1.0 {
+			continue
+		}
+
+		out = append(out, torrent)
+	}
+
+	return out, nil
 }
 
 // Refresh updates the data for this widget and displays it onscreen
@@ -148,7 +158,10 @@ func (widget *Widget) deleteSelectedTorrent() {
 		DeleteLocalData: false,
 	}
 
-	widget.client.TorrentRemove(removePayload)
+	err := widget.client.TorrentRemove(removePayload)
+	if err != nil {
+		return
+	}
 
 	widget.display()
 }
@@ -166,10 +179,15 @@ func (widget *Widget) pauseUnpauseTorrent() {
 
 	ids := []int64{*currTorrent.ID}
 
+	var err error
 	if *currTorrent.Status == transmissionrpc.TorrentStatusStopped {
-		widget.client.TorrentStartIDs(ids)
+		err = widget.client.TorrentStartIDs(ids)
 	} else {
-		widget.client.TorrentStopIDs(ids)
+		err = widget.client.TorrentStopIDs(ids)
+	}
+
+	if err != nil {
+		return
 	}
 
 	widget.display()

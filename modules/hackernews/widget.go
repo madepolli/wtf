@@ -77,13 +77,12 @@ func (widget *Widget) content() (string, string, bool) {
 		return title, widget.err.Error(), true
 	}
 
-	stories := widget.stories
-	if stories == nil || len(stories) == 0 {
+	if len(widget.stories) == 0 {
 		return title, "No stories to display", false
 	}
-	var str string
 
-	for idx, story := range stories {
+	var str string
+	for idx, story := range widget.stories {
 		u, _ := url.Parse(story.URL)
 
 		row := fmt.Sprintf(
@@ -100,18 +99,27 @@ func (widget *Widget) content() (string, string, bool) {
 	return title, str, false
 }
 
-func (widget *Widget) openStory() {
-	sel := widget.GetSelected()
-	if sel >= 0 && widget.stories != nil && sel < len(widget.stories) {
-		story := &widget.stories[sel]
-		utils.OpenFile(story.URL)
+func (widget *Widget) openComments() {
+	story := widget.selectedStory()
+	if story != nil {
+		utils.OpenFile(story.CommentLink())
 	}
 }
 
-func (widget *Widget) openComments() {
+func (widget *Widget) openStory() {
+	story := widget.selectedStory()
+	if story != nil {
+		utils.OpenFile(story.Link())
+	}
+}
+
+func (widget *Widget) selectedStory() *Story {
+	var story *Story
+
 	sel := widget.GetSelected()
 	if sel >= 0 && widget.stories != nil && sel < len(widget.stories) {
-		story := &widget.stories[sel]
-		utils.OpenFile(fmt.Sprintf("https://news.ycombinator.com/item?id=%d", story.ID))
+		story = &widget.stories[sel]
 	}
+
+	return story
 }

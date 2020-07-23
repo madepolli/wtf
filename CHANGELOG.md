@@ -2,16 +2,191 @@
 
 ## Unreleased
 
+## v0.31.0
+
 ### ⚡️ Added
 
-* Proper, usable Docker file added, by [@Boot-Error](https://github.com/Boot-Error)
+* [docker-credential-helpers](https://github.com/docker/docker-credential-helpers) support added to provide optional securing of module secrets, [#517](https://github.com/wtfutil/wtf/issues/517) by [@sam-github](https://github.com/sam-github)
+* `make lint` now uses [golangci-lint](https://github.com/golangci/golangci-lint-action), by [@sam-github](https://github.com/sam-github)
+* GitHub module now supports per-section configuration, [#864](https://github.com/wtfutil/wtf/issues/864) by [@mryanmurphy](https://github.com/mryanmurphy)
+* PagerDuty module now accepts Team ID and User ID as filters, by [@mryanmurphy](https://github.com/mryanmurphy)
+* Weather module now supports a `useEmoji` setting, toggling the use of emoji characters in the title, by [@jonhadfield](https://github.com/jonhadfield)
+* Pocket documentation added, by [@3mard](https://github.com/3mard)
+
+
+### 🐞 Fixed
+
+* GitLab Todo module now allows domain to be set, defaults to `https://gitlab.com`, by [@gerchardon](https://github.com/gerchardon)
+* Pi-hole module now works with Pi-hole v4 and v5, by [@jonhadfield](https://github.com/jonhadfield)
+* Null pointer exception fixed in VictorOps module, by [@ripienaar](https://github.com/ripienaar)
+
+### 👍 Updated
+
+* Updated `google.golang.org/api` from 0.25.0 to 0.29.0
+* Updated `pkg/profile` from 1.4.0 to 1.5.0
+* Updated `nicklaw5/helix` from 0.5.8 to 0.5.9
+* Updated `digitalocean/godo` from 1.37.0 to 1.38.0
+* Updated `gopkg.in/yaml.v2` from 2.2.8 to 2.3.0
+* Updated `xanzy/go-gitlab` from 0.31.0 to 0.33.0
+* Updated `stretchr/testify` from 1.5.1 to 1.6.1
+* Updated `golang.org/x/text` from 0.3.2 to 0.3.3
+* Updated `shirou/gopsutil` from 2.20.4+incompatible to 2.20.6+incompatible
+
+## v0.30.0
+
+### ⚡️ Added
+
+* Expansive keyboard controls for the [GitLab](https://wtfutil.com/modules/gitlab/) module, by [@mogensen](https://github.com/mogensen)
+* [IPInfo](https://wtfutil.com/modules/ipaddress/ipinfo/) module now supports IPv6 lookup, by [@acaloiaro](https://github.com/acaloiaro)
+* The GitHub repo now runs a set of actions that lint PRs for code quality and conformity and comment in-line on the PRs. See here for action details https://github.com/wtfutil/wtf/actions
+
+### 🐞 Fixed
+
+* Random capital letters around display, [#811](https://github.com/wtfutil/wtf/issues/811) by [@jonhadfield](https://github.com/jonhadfield)
+* [Feed Reader](https://wtfutil.com/modules/feedreader/) module now properly sorts multi-feed items by date, by [@rsaarelm](https://github.com/rsaarelm)
+
+### 👍 Updated
+
+* Updated `zorkian/go-datadog-api` from 2.28.0+incompatible to 2.29.0+incompatible
+* Updated `shirou/gopsutil` from 2.20.3+incompatible to 2.20.4+incompatible
+* Updated `google.golang.org/api` from 0.22.0 to 0.23.0
+
+## 0.29.0
+
+### ⚡️ Added
+
+* gCal module now has a `showEndTime` boolean option for displaying meeting end times, by [@acaloiaro](https://github.com/acaloiaro)
+* [Pi-hole](https://wtfutil.com/modules/pihole/) module added, by [@jonhadfield](https://github.com/jonhadfield)
+
+### 🐞 Fixed
+
+* Docker module subheading display, [#847](https://github.com/wtfutil/wtf/issues/847) by [@senorprogrammer](https://github.com/senorprogrammer)
+* Improved display of currencies for the Exchange Rate module, by [@indradhanush](https://github.com/indradhanush)
+
+### 👍 Updated
+
+* Updated `nicklaw5/helix` from 0.5.7 to 0.5.8
+* Updated `digitalocean/godo` from 1.34.0 to 1.35.1
+* Updated `xanzy/go-gitlab` from 0.28.0 to 0.31.0
+* Updated `shirou/gopsutil` from 2.20.2+incompatible to 2.20.3+incompatible
+* Updated `alecthomas/chroma` from 0.7.1 to 0.7.2
+* Updated `google.golang.org/api` from 0.21.0 to 0.22.0
+
+## v0.28.0
+
+### ⚡️ Added
+
+* Support for customizing CPU, Mem, and Swap display in ResourceUsage, by [@leterio](https://github.com/leterio)
+
+### 👍 Updated
+
+* Now prefers Go 1.14 for compilation (should still work under 1.13 however)
+* Updated `shirou/gopsutil` from 2.20.1+incompatible to 2.20.2+incompatible
+* Updated `google.golang.org/api` from 0.17.0 to 0.20.0
+* Updated `digitalocean/godo` from 1.30.0 to 1.32.0
+* Updated `xanzy/go-gitlab` from 0.26.0 to 0.28.0
+* Updated `adlio/trello` from 1.6.0 to 1.7.0
+* Updated `zorkian/go-datadog-api` from 2.27.0+incompatible to 2.28.0+incompatible
+
+## 0.27.0
+
+### ⚡️ Added
+
+* GitLab Todo module added, by [@elliotrushton](https://github.com/elliotrushton)
+* [CDS](https://wtfutil.com/modules/cds/) module added, by [@yesnault](https://github.com/yesnault)
+
+### 🐞 Fixed
+
+* The `vendor` directory has been removed, [#792](https://github.com/wtfutil/wtf/issues/792) by [@bjoernw](https://github.com/bjoernw)
+
+### 👍 Updated
+
+* Updated `zorkian/go-datadog-api` from 2.26.0+incompatible to 2.27.0+incompatible
+* Updated `google.golang.org/api` from 0.15.0 to 0.17.0
+* Updated `github.com/nicklaw5/helix` from 0.5.5 to 0.5.7
+* Updated `xanzy/go-gitlab` from 0.23.0 to 0.26.0
+* Updated `stretchr/testify` from o.4.0 to 0.5.1
+
+## 0.26.0
+
+### ⚡️ Added
+
+* `myName` config setting added to PagerDuty module, by [@senorprogrammer](https://github.com/senorprogrammer)
+* `withDate` config setting added to Digital Clock module, by [@senorprogrammer](https://github.com/senorprogrammer)
+* Twitch module added, by [@bjoernw](https://github.com/bjoernw)
+* HackerNews module now opens HN comments when there is no alternative external link, [#758](https://github.com/wtfutil/wtf/issues/758) by [@senorprogrammer](https://github.com/senorprogrammer)
+* gCal module now now allows users to hide all-day events, [#733](https://github.com/wtfutil/wtf/issues/733) by [@senorprogrammer](https://github.com/senorprogrammer)
+* SpaceX module added, by [@bjoernw](https://github.com/bjoernw)
+* Support for obeying `XDG_CONFIG_HOME` when set, [#699](https://github.com/wtfutil/wtf/issues/699) by [@Seanstoppable](https://github.com/Seanstoppable)
+
+### 🐞 Fixed
+
+* Module templating working again, [#748](https://github.com/wtfutil/wtf/issues/748) by [@senorprogrammer](https://github.com/senorprogrammer)
+* CmdRunner title spacing issue fixed, [#784](https://github.com/wtfutil/wtf/issues/784) by [@senorprogrammer](https://github.com/senorprogrammer)
+* Colors in cmdrunner fixed when using nodejs chalk et al., [#618](https://github.com/wtfutil/wtf/issues/618) by [@Seanstoppable](https://github.com/Seanstoppable)
+* Docker buid instructions updated and improved, by [@firecat53](https://github.com/firecat53)
+* Kubernetes module can now be used with multiple contexts, [#809](https://github.com/wtfutil/wtf/issues/809) by [@davidsbond](https://github.com/davidsbond)
+
+### 👍 Updated
+
+* Updated `digitalocean/godo` from 1.22.0 to 1.30.0
+* Updated `google.golang.org/api` from 0.14.0 to 0.15.0
+* Updated `alecthomas/chroma` from 0.7.0 to 0.7.1
+* Updated `pkg/errors` from 0.8.1 to 0.9.1
+* Updated `xanzy/go-gitlab` from 0.22.2 to 0.23.0
+* Updated `shirou/gopsutil` from 2.19.11 to 2.20.1
+* Updated `zorkian/go-datadog-api` from 2.25.0 to 2.26.0
+* Updated `gopkg.in/yaml.v2` from 2.2.7 to 2.2.8
+* Updated `nicklaw5/helix` from 0.5.4 to 0.5.5
+
+## 0.25.0
+
+### ⚡️ Added
+
+* [DigitalOcean](https://wtfutil.com/modules/digitalocean/) module added, by [@senorprogrammer](https://github.com/senorprogrammer)
+* [Transmission](https://wtfutil.com/modules/transmission/) module now supports a `hideComplete` configuration setting, by [@schoentoon](https://github.com/schoentoon)
+* Pocket module added, [#742] by [@3mard](https://github.com/3mard)
+* [Exchange Rates](https://wtfutil.com/modules/exchange_rates/) module added, by [@schoentoon](https://github.com/schoentoon)
+* [GitHub](https://wtfutil.com/modules/github/) modules supports 'p' keyboard command to open **p**ull requests, by [@NickyMateev](https://github.com/NickyMateev)
+* [GitHub](https://wtfutil.com/modules/github/) modules supports 'i' keyboard command to open **i**ssues, by [@NickyMateev](https://github.com/NickyMateev)
+* [Jenkins](https://wtfutil.com/modules/jenkins/) module now supports multi-configuration projects, by [@NickyMateev](https://github.com/NickyMateev)
+
+### 🐞 Fixed
+
+* Subreddit out of bounds error fixed, [#753](https://github.com/wtfutil/wtf/issues/753) by [@TDHTTTT](https://github.com/TDHTTTT)
+* Homebrew builds now contain version information, [#557](https://github.com/wtfutil/wtf/issues/557) by [@jottr](https://github.com/jottr)
+* CmdRunner flicker problem, [#732](https://github.com/wtfutil/wtf/issues/732) by [@Gibstick](https://github.com/Gibstick)
+
+### 👍 Updated
+
+* Switched from `gocenter.io` as the Go proxy to `proxy.golang.org`, by [@chenrui333](https://github.com/chenrui333)
+* Updated `go-datadog-api` to version 2.25.0+incompatible
+* Updated `adlio/trello` to version 1.6.0
+* Updated `alecthomas/chroma` to version 0.7.0
+* Updated `olekukonko/tablewriter` to version 0.0.3
+* Updated `pkg/profile` to version 1.4.0
+* Updated `yaml.v2` to 2.2.7
+* Updated `google.golang.org/api` to 0.14.0
+* Updated `xanzy/go-gitlab` to 0.22.2
+* Uodated `shirou/gopsutil` to 2.19.11+incompatible
+
+
+## v0.24.0
+
+### ⚡️ Added
+
+* Proper, usable [Docker file](https://github.com/wtfutil/wtf/blob/master/Dockerfile) added, by [@Boot-Error](https://github.com/Boot-Error)
 * [GitLab](https://wtfutil.com/modules/gitlab/) module displays issues assigned to, and opened by, the user, by [@caalberts](https://github.com/caalberts)
-* TravisCI now checks for uncommitted vendor changes, by [@indradhanush](https://github.com/indradhanush)
+* [TravisCI](https://wtfutil.com/modules/travisci/) now checks for uncommitted vendor changes, by [@indradhanush](https://github.com/indradhanush)
+* Football module added, by [@C123R](https://github.com/C123R)
+* [resourceuseage](https://wtfutil.com/modules/resourceusage/) now supports a `cpuCombined` setting, by [@madepolli](https://github.com/madepolli)
+* [Twitter Stats](https://wtfutil.com/modules/twitter/twittertweets/) module added, by [@Ameobea](https://github.com/Ameobea)
 
 ### 🐞 Fixed
 
 * Github PRs do not count against issues, by [@alexfornuto](https://github.com/alexfornuto)
 * Todo scrolling now works properly, [#707](https://github.com/wtfutil/wtf/issues/707) by [3mard](https://github.com/3mard)
+* Configs with a missing `color` key now load properly, [#718](https://github.com/wtfutil/wtf/issues/718) and [#730](https://github.com/wtfutil/wtf/issues/730) by [@senorprogrammer](https://github.com/senorprogrammer)
 
 ## 0.23.0
 

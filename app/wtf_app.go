@@ -41,9 +41,8 @@ func NewWtfApp(app *tview.Application, config *config.Config, configFilePath str
 		return false
 	})
 
-	wtfApp.pages.Box.SetBackgroundColor(wtf.ColorFor(config.UString("wtf.colors.background", "transparent")))
-
 	wtfApp.app.SetInputCapture(wtfApp.keyboardIntercept)
+
 	wtfApp.widgets = MakeWidgets(wtfApp.app, wtfApp.pages, wtfApp.config)
 	wtfApp.display = NewDisplay(wtfApp.widgets, wtfApp.config)
 	wtfApp.focusTracker = NewFocusTracker(wtfApp.app, wtfApp.widgets, wtfApp.config)
@@ -54,15 +53,17 @@ func NewWtfApp(app *tview.Application, config *config.Config, configFilePath str
 
 	wtfApp.validator.Validate(wtfApp.widgets)
 
+	firstWidget := wtfApp.widgets[0]
+	wtfApp.pages.Box.SetBackgroundColor(
+		wtf.ColorFor(
+			firstWidget.CommonSettings().Colors.WidgetTheme.Background,
+		),
+	)
+
 	return &wtfApp
 }
 
 /* -------------------- Exported Functions -------------------- */
-
-// App returns the *tview.Application instance
-func (wtfApp *WtfApp) App() *tview.Application {
-	return wtfApp.app
-}
 
 // Start initializes the app
 func (wtfApp *WtfApp) Start() {
@@ -108,6 +109,7 @@ func (wtfApp *WtfApp) keyboardIntercept(event *tcell.EventKey) *tcell.EventKey {
 		switch string(event.Rune()) {
 		case "/":
 			return nil
+		default:
 		}
 	}
 

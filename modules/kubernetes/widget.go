@@ -18,6 +18,7 @@ type Widget struct {
 	title      string
 	kubeconfig string
 	namespaces []string
+	context    string
 	settings   *Settings
 }
 
@@ -31,6 +32,7 @@ func NewWidget(app *tview.Application, settings *Settings) *Widget {
 		kubeconfig: settings.kubeconfig,
 		namespaces: settings.namespaces,
 		settings:   settings,
+		context:    settings.context,
 	}
 
 	widget.View.SetWrap(true)
@@ -56,7 +58,7 @@ func (widget *Widget) Refresh() {
 			widget.Redraw(func() (string, string, bool) { return title, "[red] Error getting node data [white]\n", true })
 			return
 		}
-		content += "[red]Nodes[white]\n"
+		content += fmt.Sprintf("[%s]Nodes[white]\n", widget.settings.common.Colors.Subheading)
 		for _, node := range nodeList {
 			content += fmt.Sprintf("%s\n", node)
 		}
@@ -69,7 +71,7 @@ func (widget *Widget) Refresh() {
 			widget.Redraw(func() (string, string, bool) { return title, "[red] Error getting deployment data [white]\n", true })
 			return
 		}
-		content += "[red]Deployments[white]\n"
+		content += fmt.Sprintf("[%s]Deployments[white]\n", widget.settings.common.Colors.Subheading)
 		for _, deployment := range deploymentList {
 			content += fmt.Sprintf("%s\n", deployment)
 		}
@@ -82,7 +84,7 @@ func (widget *Widget) Refresh() {
 			widget.Redraw(func() (string, string, bool) { return title, "[red] Error getting pod data [white]\n", false })
 			return
 		}
-		content += "[red]Pods[white]\n"
+		content += fmt.Sprintf("[%s]Pods[white]\n", widget.settings.common.Colors.Subheading)
 		for _, pod := range podList {
 			content += fmt.Sprintf("%s\n", pod)
 		}
@@ -100,6 +102,10 @@ func (widget *Widget) generateTitle() string {
 		return widget.title
 	}
 	title := "Kube"
+
+	if widget.context != "" {
+		title = fmt.Sprintf("%s (%s)", title, widget.context)
+	}
 
 	if len(widget.namespaces) == 1 {
 		title += fmt.Sprintf(" - Namespace: %s", widget.namespaces[0])
@@ -192,11 +198,12 @@ func (client *clientInstance) getNodes() ([]string, error) {
 		var nodeStatus string
 		for _, condition := range node.Status.Conditions {
 			if condition.Reason == "KubeletReady" {
-				if condition.Status == "True" {
+				switch {
+				case condition.Status == "True":
 					nodeStatus = "Ready"
-				} else if condition.Reason == "False" {
+				case condition.Reason == "False":
 					nodeStatus = "NotReady"
-				} else {
+				default:
 					nodeStatus = "Unknown"
 				}
 			}

@@ -15,6 +15,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"sort"
 	"time"
 
@@ -23,6 +24,7 @@ import (
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/calendar/v3"
+	"google.golang.org/api/option"
 )
 
 /* -------------------- Exported Functions -------------------- */
@@ -32,7 +34,7 @@ func (widget *Widget) Fetch() ([]*CalEvent, error) {
 
 	secretPath, _ := utils.ExpandHomeDir(widget.settings.secretFile)
 
-	b, err := ioutil.ReadFile(secretPath)
+	b, err := ioutil.ReadFile(filepath.Clean(secretPath))
 	if err != nil {
 		return nil, err
 	}
@@ -43,12 +45,10 @@ func (widget *Widget) Fetch() ([]*CalEvent, error) {
 	}
 	client := getClient(ctx, config)
 
-	srv, err := calendar.New(client)
+	srv, err := calendar.NewService(context.Background(), option.WithHTTPClient(client))
 	if err != nil {
 		return nil, err
 	}
-
-	calendarIds, err := widget.getCalendarIdList(srv)
 
 	// Get calendar events
 	var events calendar.Events
@@ -58,9 +58,10 @@ func (widget *Widget) Fetch() ([]*CalEvent, error) {
 
 	timezone := widget.settings.timezone
 
-	for _, calendarId := range calendarIds {
-		calendarEvents, err := srv.Events.List(calendarId).TimeZone(timezone).ShowDeleted(false).TimeMin(startTime).MaxResults(eventLimit).SingleEvents(true).OrderBy("startTime").Do()
-		if err != nil {
+	calendarIDs, err := widget.getCalendarIdList(srv)
+	for _, calendarID := range calendarIDs {
+		calendarEvents, listErr := srv.Events.List(calendarID).TimeZone(timezone).ShowDeleted(false).TimeMin(startTime).MaxResults(eventLimit).SingleEvents(true).OrderBy("startTime").Do()
+		if listErr != nil {
 			break
 		}
 		events.Items = append(events.Items, calendarEvents.Items...)
@@ -125,16 +126,16 @@ func isAuthenticated() bool {
 }
 
 func (widget *Widget) authenticate() {
-	secretPath, _ := utils.ExpandHomeDir(widget.settings.secretFile)
+	secretPath, _ := utils.ExpandHomeDir(filepath.Clean(widget.settings.secretFile))
 
-	b, err := ioutil.ReadFile(secretPath)
+	b, err := ioutil.ReadFile(filepath.Clean(secretPath))
 	if err != nil {
 		log.Fatalf("Unable to read secret file. %v", widget.settings.secretFile)
 	}
 
-	config, err := google.ConfigFromJSON(b, calendar.CalendarReadonlyScope)
+	config, _ := google.ConfigFromJSON(b, calendar.CalendarReadonlyScope)
 	tok := getTokenFromWeb(config)
-	cacheFile, err := tokenCacheFile()
+	cacheFile, _ := tokenCacheFile()
 	saveToken(cacheFile, tok)
 }
 
@@ -150,7 +151,7 @@ func getTokenFromWeb(config *oauth2.Config) *oauth2.Token {
 		log.Fatalf("Unable to read authorization code %v", err)
 	}
 
-	tok, err := config.Exchange(oauth2.NoContext, code)
+	tok, err := config.Exchange(context.Background(), code)
 	if err != nil {
 		log.Fatalf("Unable to retrieve token from web %v", err)
 	}
@@ -166,13 +167,14 @@ func tokenCacheFile() (string, error) {
 // tokenFromFile retrieves a Token from a given file path.
 // It returns the retrieved Token and any read error encountered.
 func tokenFromFile(file string) (*oauth2.Token, error) {
-	f, err := os.Open(file)
+	f, err := os.Open(filepath.Clean(file))
 	if err != nil {
 		return nil, err
 	}
 	t := &oauth2.Token{}
 	err = json.NewDecoder(f).Decode(t)
-	defer f.Close()
+	defer func() { _ = f.Close() }()
+
 	return t, err
 }
 
@@ -182,11 +184,14 @@ func saveToken(file string, token *oauth2.Token) {
 	fmt.Printf("Saving credential file to: %s\n", file)
 	f, err := os.OpenFile(file, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
-		log.Fatalf("Unable to cache oauth token: %v", err)
+		log.Fatalf("unable to cache oauth token: %v", err)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
-	json.NewEncoder(f).Encode(token)
+	err = json.NewEncoder(f).Encode(token)
+	if err != nil {
+		log.Fatalf("unable to encode oauth token: %v", err)
+	}
 }
 
 func (widget *Widget) getCalendarIdList(srv *calendar.Service) ([]string, error) {

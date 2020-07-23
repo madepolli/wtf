@@ -3,16 +3,11 @@ package feedreader
 import (
 	"fmt"
 	"sort"
-	"time"
 
 	"github.com/mmcdole/gofeed"
 	"github.com/rivo/tview"
 	"github.com/wtfutil/wtf/utils"
 	"github.com/wtfutil/wtf/view"
-)
-
-const (
-	publishedDateLayout = "Mon, 02 2006 15:04:05"
 )
 
 // FeedItem represents an item returned from an RSS or Atom feed
@@ -63,9 +58,7 @@ func (widget *Widget) Fetch(feedURLs []string) ([]*FeedItem, error) {
 			return nil, err
 		}
 
-		for _, feedItem := range feedItems {
-			data = append(data, feedItem)
-		}
+		data = append(data, feedItems...)
 	}
 
 	data = widget.sort(data)
@@ -128,7 +121,7 @@ func (widget *Widget) content() (string, string, bool) {
 		return title, widget.err.Error(), true
 	}
 	data := widget.stories
-	if data == nil || len(data) == 0 {
+	if len(data) == 0 {
 		return title, "No data", false
 	}
 	var str string
@@ -140,7 +133,7 @@ func (widget *Widget) content() (string, string, bool) {
 			// Grays out viewed items in the list, while preserving background highlighting when selected
 			rowColor = "gray"
 			if idx == widget.Selected {
-				rowColor = fmt.Sprintf("gray:%s", widget.settings.common.Colors.HighlightBack)
+				rowColor = fmt.Sprintf("gray:%s", widget.settings.common.Colors.RowTheme.HighlightedBackground)
 			}
 		}
 
@@ -160,10 +153,7 @@ func (widget *Widget) content() (string, string, bool) {
 // feedItems are sorted by published date
 func (widget *Widget) sort(feedItems []*FeedItem) []*FeedItem {
 	sort.Slice(feedItems, func(i, j int) bool {
-		iTime, _ := time.Parse(publishedDateLayout, feedItems[i].item.Published)
-		jTime, _ := time.Parse(publishedDateLayout, feedItems[j].item.Published)
-
-		return iTime.After(jTime)
+		return feedItems[i].item.PublishedParsed.After(*feedItems[j].item.PublishedParsed)
 	})
 
 	return feedItems

@@ -36,7 +36,9 @@ func (widget *Widget) Refresh() {
 	var err2 error
 
 	if widget.settings.showIncidents {
-		incidents, err2 = GetIncidents(widget.settings.apiKey)
+		teamIDs := utils.ToStrs(widget.settings.teamIDs)
+		userIDs := utils.ToStrs(widget.settings.userIDs)
+		incidents, err2 = GetIncidents(widget.settings.apiKey, teamIDs, userIDs)
 	}
 
 	if widget.settings.showSchedules {
@@ -67,13 +69,17 @@ func (widget *Widget) Refresh() {
 func (widget *Widget) contentFrom(onCalls []pagerduty.OnCall, incidents []pagerduty.Incident) string {
 	var str string
 
-	if len(incidents) > 0 {
-		str += "[yellow]Incidents[white]\n"
-		for _, incident := range incidents {
-			str += fmt.Sprintf("[red]%s[white]\n", incident.Summary)
-			str += fmt.Sprintf("Status: %s\n", incident.Status)
-			str += fmt.Sprintf("Service: %s\n", incident.Service.Summary)
-			str += fmt.Sprintf("Escalation: %s\n", incident.EscalationPolicy.Summary)
+	if widget.settings.showIncidents {
+		str += "[yellow] Incidents[white]"
+		if len(incidents) > 0 {
+			for _, incident := range incidents {
+				str += fmt.Sprintf("\n [%s]%s[white]\n", widget.settings.common.Colors.Subheading, incident.Summary)
+				str += fmt.Sprintf(" Status: %s\n", incident.Status)
+				str += fmt.Sprintf(" Service: %s\n", incident.Service.Summary)
+				str += fmt.Sprintf(" Escalation: %s\n", incident.EscalationPolicy.Summary)
+			}
+		} else {
+			str += "\n No open incidents\n"
 		}
 	}
 
@@ -100,17 +106,39 @@ func (widget *Widget) contentFrom(onCalls []pagerduty.OnCall, incidents []pagerd
 	sort.Strings(keys)
 
 	if len(keys) > 0 {
-		str += "[red] Schedules[white]\n"
+		str += fmt.Sprintf("\n[%s] Schedules[white]\n", widget.settings.common.Colors.Subheading)
+
 		// Print out policies, and escalation order of users
 		for _, key := range keys {
-			str += fmt.Sprintf("\n [green::b]%s\n", key)
+			str += fmt.Sprintf(
+				"\n [%s]%s\n",
+				widget.settings.common.Colors.Subheading,
+				key,
+			)
+
 			values := tree[key]
 			sort.Sort(ByEscalationLevel(values))
+
 			for _, item := range values {
-				str += fmt.Sprintf(" [white]%d - %s\n", item.EscalationLevel, item.User.Summary)
+				str += fmt.Sprintf(
+					" [%s]%d - %s\n",
+					widget.settings.common.Colors.Text,
+					item.EscalationLevel,
+					widget.userSummary(item),
+				)
 			}
 		}
 	}
 
 	return str
+}
+
+func (widget *Widget) userSummary(item pagerduty.OnCall) string {
+	summary := item.User.Summary
+
+	if summary == widget.settings.myName {
+		summary = fmt.Sprintf("[::b]%s", summary)
+	}
+
+	return summary
 }

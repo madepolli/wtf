@@ -7,6 +7,9 @@ import (
 	"github.com/wtfutil/wtf/modules/bamboohr"
 	"github.com/wtfutil/wtf/modules/bargraph"
 	"github.com/wtfutil/wtf/modules/buildkite"
+	cdsfavorites "github.com/wtfutil/wtf/modules/cds/favorites"
+	cdsqueue "github.com/wtfutil/wtf/modules/cds/queue"
+	cdsstatus "github.com/wtfutil/wtf/modules/cds/status"
 	"github.com/wtfutil/wtf/modules/circleci"
 	"github.com/wtfutil/wtf/modules/clocks"
 	"github.com/wtfutil/wtf/modules/cmdrunner"
@@ -16,13 +19,17 @@ import (
 	"github.com/wtfutil/wtf/modules/datadog"
 	"github.com/wtfutil/wtf/modules/devto"
 	"github.com/wtfutil/wtf/modules/digitalclock"
+	"github.com/wtfutil/wtf/modules/digitalocean"
 	"github.com/wtfutil/wtf/modules/docker"
+	"github.com/wtfutil/wtf/modules/exchangerates"
 	"github.com/wtfutil/wtf/modules/feedreader"
+	"github.com/wtfutil/wtf/modules/football"
 	"github.com/wtfutil/wtf/modules/gcal"
 	"github.com/wtfutil/wtf/modules/gerrit"
 	"github.com/wtfutil/wtf/modules/git"
 	"github.com/wtfutil/wtf/modules/github"
 	"github.com/wtfutil/wtf/modules/gitlab"
+	"github.com/wtfutil/wtf/modules/gitlabtodo"
 	"github.com/wtfutil/wtf/modules/gitter"
 	"github.com/wtfutil/wtf/modules/googleanalytics"
 	"github.com/wtfutil/wtf/modules/gspreadsheets"
@@ -39,10 +46,13 @@ import (
 	"github.com/wtfutil/wtf/modules/newrelic"
 	"github.com/wtfutil/wtf/modules/opsgenie"
 	"github.com/wtfutil/wtf/modules/pagerduty"
+	"github.com/wtfutil/wtf/modules/pihole"
+	"github.com/wtfutil/wtf/modules/pocket"
 	"github.com/wtfutil/wtf/modules/power"
 	"github.com/wtfutil/wtf/modules/resourceusage"
 	"github.com/wtfutil/wtf/modules/rollbar"
 	"github.com/wtfutil/wtf/modules/security"
+	"github.com/wtfutil/wtf/modules/spacex"
 	"github.com/wtfutil/wtf/modules/spotify"
 	"github.com/wtfutil/wtf/modules/spotifyweb"
 	"github.com/wtfutil/wtf/modules/status"
@@ -53,7 +63,9 @@ import (
 	"github.com/wtfutil/wtf/modules/transmission"
 	"github.com/wtfutil/wtf/modules/travisci"
 	"github.com/wtfutil/wtf/modules/trello"
+	"github.com/wtfutil/wtf/modules/twitch"
 	"github.com/wtfutil/wtf/modules/twitter"
+	"github.com/wtfutil/wtf/modules/twitterstats"
 	"github.com/wtfutil/wtf/modules/unknown"
 	"github.com/wtfutil/wtf/modules/victorops"
 	"github.com/wtfutil/wtf/modules/weatherservices/arpansagovau"
@@ -73,8 +85,14 @@ func MakeWidget(
 	var widget wtf.Wtfable
 
 	moduleConfig, _ := config.Get("wtf.mods." + moduleName)
+
+	// Don' try to initialize modules that don't exist
+	if moduleConfig == nil {
+		return nil
+	}
+
+	// Don't try to initialize modules that aren't enabled
 	if enabled := moduleConfig.UBool("enabled", false); !enabled {
-		// Don't initialize modules that aren't enabled
 		return nil
 	}
 
@@ -101,15 +119,21 @@ func MakeWidget(
 	case "buildkite":
 		settings := buildkite.NewSettingsFromYAML(moduleName, moduleConfig, config)
 		widget = buildkite.NewWidget(app, pages, settings)
+	case "cdsFavorites":
+		settings := cdsfavorites.NewSettingsFromYAML(moduleName, moduleConfig, config)
+		widget = cdsfavorites.NewWidget(app, pages, settings)
+	case "cdsQueue":
+		settings := cdsqueue.NewSettingsFromYAML(moduleName, moduleConfig, config)
+		widget = cdsqueue.NewWidget(app, pages, settings)
+	case "cdsStatus":
+		settings := cdsstatus.NewSettingsFromYAML(moduleName, moduleConfig, config)
+		widget = cdsstatus.NewWidget(app, pages, settings)
 	case "circleci":
 		settings := circleci.NewSettingsFromYAML(moduleName, moduleConfig, config)
 		widget = circleci.NewWidget(app, settings)
 	case "clocks":
 		settings := clocks.NewSettingsFromYAML(moduleName, moduleConfig, config)
 		widget = clocks.NewWidget(app, settings)
-	case "digitalclock":
-		settings := digitalclock.NewSettingsFromYAML(moduleName, moduleConfig, config)
-		widget = digitalclock.NewWidget(app, settings)
 	case "cmdrunner":
 		settings := cmdrunner.NewSettingsFromYAML(moduleName, moduleConfig, config)
 		widget = cmdrunner.NewWidget(app, settings)
@@ -122,12 +146,21 @@ func MakeWidget(
 	case "devto":
 		settings := devto.NewSettingsFromYAML(moduleName, moduleConfig, config)
 		widget = devto.NewWidget(app, pages, settings)
+	case "digitalclock":
+		settings := digitalclock.NewSettingsFromYAML(moduleName, moduleConfig, config)
+		widget = digitalclock.NewWidget(app, settings)
+	case "digitalocean":
+		settings := digitalocean.NewSettingsFromYAML(moduleName, moduleConfig, config)
+		widget = digitalocean.NewWidget(app, pages, settings)
 	case "docker":
 		settings := docker.NewSettingsFromYAML(moduleName, moduleConfig, config)
 		widget = docker.NewWidget(app, pages, settings)
 	case "feedreader":
 		settings := feedreader.NewSettingsFromYAML(moduleName, moduleConfig, config)
 		widget = feedreader.NewWidget(app, pages, settings)
+	case "football":
+		settings := football.NewSettingsFromYAML(moduleName, moduleConfig, config)
+		widget = football.NewWidget(app, pages, settings)
 	case "gcal":
 		settings := gcal.NewSettingsFromYAML(moduleName, moduleConfig, config)
 		widget = gcal.NewWidget(app, settings)
@@ -143,6 +176,9 @@ func MakeWidget(
 	case "gitlab":
 		settings := gitlab.NewSettingsFromYAML(moduleName, moduleConfig, config)
 		widget = gitlab.NewWidget(app, pages, settings)
+	case "gitlabtodo":
+		settings := gitlabtodo.NewSettingsFromYAML(moduleName, moduleConfig, config)
+		widget = gitlabtodo.NewWidget(app, pages, settings)
 	case "gitter":
 		settings := gitter.NewSettingsFromYAML(moduleName, moduleConfig, config)
 		widget = gitter.NewWidget(app, pages, settings)
@@ -191,12 +227,18 @@ func MakeWidget(
 	case "pagerduty":
 		settings := pagerduty.NewSettingsFromYAML(moduleName, moduleConfig, config)
 		widget = pagerduty.NewWidget(app, settings)
+	case "pihole":
+		settings := pihole.NewSettingsFromYAML(moduleName, moduleConfig, config)
+		widget = pihole.NewWidget(app, pages, settings)
 	case "power":
 		settings := power.NewSettingsFromYAML(moduleName, moduleConfig, config)
 		widget = power.NewWidget(app, settings)
 	case "prettyweather":
 		settings := prettyweather.NewSettingsFromYAML(moduleName, moduleConfig, config)
 		widget = prettyweather.NewWidget(app, settings)
+	case "pocket":
+		settings := pocket.NewSettingsFromYAML(moduleName, moduleConfig, config)
+		widget = pocket.NewWidget(app, pages, settings)
 	case "resourceusage":
 		settings := resourceusage.NewSettingsFromYAML(moduleName, moduleConfig, config)
 		widget = resourceusage.NewWidget(app, settings)
@@ -206,6 +248,9 @@ func MakeWidget(
 	case "security":
 		settings := security.NewSettingsFromYAML(moduleName, moduleConfig, config)
 		widget = security.NewWidget(app, settings)
+	case "spacex":
+		settings := spacex.NewSettingsFromYAML(moduleName, moduleConfig, config)
+		widget = spacex.NewWidget(app, settings)
 	case "spotify":
 		settings := spotify.NewSettingsFromYAML(moduleName, moduleConfig, config)
 		widget = spotify.NewWidget(app, pages, settings)
@@ -236,9 +281,15 @@ func MakeWidget(
 	case "trello":
 		settings := trello.NewSettingsFromYAML(moduleName, moduleConfig, config)
 		widget = trello.NewWidget(app, settings)
+	case "twitch":
+		settings := twitch.NewSettingsFromYAML(moduleName, moduleConfig, config)
+		widget = twitch.NewWidget(app, pages, settings)
 	case "twitter":
 		settings := twitter.NewSettingsFromYAML(moduleName, moduleConfig, config)
 		widget = twitter.NewWidget(app, pages, settings)
+	case "twitterstats":
+		settings := twitterstats.NewSettingsFromYAML(moduleName, moduleConfig, config)
+		widget = twitterstats.NewWidget(app, pages, settings)
 	case "victorops":
 		settings := victorops.NewSettingsFromYAML(moduleName, moduleConfig, config)
 		widget = victorops.NewWidget(app, settings)
@@ -248,6 +299,9 @@ func MakeWidget(
 	case "zendesk":
 		settings := zendesk.NewSettingsFromYAML(moduleName, moduleConfig, config)
 		widget = zendesk.NewWidget(app, pages, settings)
+	case "exchangerates":
+		settings := exchangerates.NewSettingsFromYAML(moduleName, moduleConfig, config)
+		widget = exchangerates.NewWidget(app, pages, settings)
 	default:
 		settings := unknown.NewSettingsFromYAML(moduleName, moduleConfig, config)
 		widget = unknown.NewWidget(app, settings)

@@ -1,6 +1,6 @@
 env:
   - GO111MODULE=on
-  - GOPROXY="https://gocenter.io"
+  - GOPROXY="https://proxy.golang.org,direct"
 
 archives:
   - id: default
@@ -29,7 +29,3 @@ brews:
     name: wtfutil
     homepage: 'https://wtfutil.com'
     description: 'The personal information dashboard for your terminal.'
-
-dockers:
-  - image_templates:
-    - wtfutil/wtf

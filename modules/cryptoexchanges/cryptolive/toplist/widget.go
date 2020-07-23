@@ -68,11 +68,13 @@ func (widget *Widget) Refresh(wg *sync.WaitGroup) {
 
 func (widget *Widget) updateData() {
 	defer func() {
-		recover()
+		if r := recover(); r != nil {
+			fmt.Println("recovered in updateSummary()", r)
+		}
 	}()
 
 	client := &http.Client{
-		Timeout: time.Duration(5 * time.Second),
+		Timeout: 5 * time.Second,
 	}
 
 	for _, fromCurrency := range widget.list.items {

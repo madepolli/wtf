@@ -32,7 +32,6 @@ import (
 var tviewApp *tview.Application
 
 var (
-	commit  = "dev"
 	date    = "dev"
 	version = "dev"
 )
@@ -63,7 +62,7 @@ func main() {
 
 	// Load the configuration file
 	config := cfg.LoadWtfConfigFile(flags.ConfigFilePath())
-	flags.RenderIf(version, config)
+	flags.RenderIf(version, date, config)
 
 	if flags.Profile {
 		defer profile.Start(profile.MemProfile).Stop()

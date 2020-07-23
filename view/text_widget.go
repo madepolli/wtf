@@ -32,6 +32,7 @@ func (widget *TextWidget) TextView() *tview.TextView {
 func (widget *TextWidget) Redraw(data func() (string, string, bool)) {
 	widget.app.QueueUpdateDraw(func() {
 		title, content, wrap := data()
+
 		widget.View.Clear()
 		widget.View.SetWrap(wrap)
 		widget.View.SetTitle(widget.ContextualTitle(title))
@@ -44,12 +45,12 @@ func (widget *TextWidget) Redraw(data func() (string, string, bool)) {
 func (widget *TextWidget) createView(bordered bool) *tview.TextView {
 	view := tview.NewTextView()
 
-	view.SetBackgroundColor(wtf.ColorFor(widget.commonSettings.Colors.Background))
+	view.SetBackgroundColor(wtf.ColorFor(widget.commonSettings.Colors.WidgetTheme.Background))
 	view.SetBorder(bordered)
 	view.SetBorderColor(wtf.ColorFor(widget.BorderColor()))
 	view.SetDynamicColors(true)
-	view.SetTextColor(wtf.ColorFor(widget.commonSettings.Colors.Text))
-	view.SetTitleColor(wtf.ColorFor(widget.commonSettings.Colors.Title))
+	view.SetTextColor(wtf.ColorFor(widget.commonSettings.Colors.TextTheme.Text))
+	view.SetTitleColor(wtf.ColorFor(widget.commonSettings.Colors.TextTheme.Title))
 	view.SetWrap(false)
 
 	return view

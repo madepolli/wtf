@@ -10,7 +10,9 @@ func Test_generateTitle(t *testing.T) {
 	type fields struct {
 		title      string
 		namespaces []string
+		context    string
 	}
+
 	testCases := []struct {
 		name   string
 		fields fields
@@ -45,12 +47,22 @@ func Test_generateTitle(t *testing.T) {
 			},
 			want: "Test Explicit Title",
 		},
+		{
+			name: "Context set",
+			fields: fields{
+				namespaces: []string{},
+				context:    "test-context",
+			},
+			want: "Kube (test-context)",
+		},
 	}
+
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
 			widget := &Widget{
 				title:      tt.fields.title,
 				namespaces: tt.fields.namespaces,
+				context:    tt.fields.context,
 			}
 			assert.Equal(t, tt.want, widget.generateTitle())
 		})

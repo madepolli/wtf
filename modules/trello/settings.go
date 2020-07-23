@@ -27,10 +27,13 @@ func NewSettingsFromYAML(name string, ymlConfig *config.Config, globalConfig *co
 		common: cfg.NewCommonSettingsFromModule(name, defaultTitle, defaultFocusable, ymlConfig, globalConfig),
 
 		accessToken: ymlConfig.UString("accessToken", ymlConfig.UString("apikey", os.Getenv("WTF_TRELLO_ACCESS_TOKEN"))),
-		apiKey:      ymlConfig.UString("apiKey", os.Getenv("WTF_TRELLO_APP_KEY")),
+		apiKey:      ymlConfig.UString("apiKey", os.Getenv("WTF_TRELLO_API_KEY")),
 		board:       ymlConfig.UString("board"),
 		username:    ymlConfig.UString("username"),
 	}
+
+	cfg.ModuleSecret(name+"-api", globalConfig, &settings.apiKey).Load()
+	cfg.ModuleSecret(name+"-access", globalConfig, &settings.accessToken).Load()
 
 	settings.list = buildLists(ymlConfig, globalConfig)
 

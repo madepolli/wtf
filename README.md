@@ -1,30 +1,27 @@
+<p align="center">
+    <img src="./images/logo_transparent.png?raw=true" title="WTF" alt="WTF" width="560" height="560" />
+</p>
 
-[![All Contributors](https://img.shields.io/badge/all_contributors-111-orange.svg?style=flat-square)](#contributors)
-[![Build Status](https://travis-ci.com/wtfutil/wtf.svg?branch=master)](https://travis-ci.com/wtfutil/wtf)
-[![Twitter](https://img.shields.io/badge/follow-on%20twitter-blue.svg)](https://twitter.com/wtfutil)
-[![Go Report Card](https://goreportcard.com/badge/github.com/wtfutil/wtf)](https://goreportcard.com/report/github.com/wtfutil/wtf)
+<p align="center">
+    <a href="#contributors"><img alt="All Contributors" src="https://img.shields.io/badge/all_contributors-114-orange.svg?style=flat-square"></a>
+    <a href="https://travis-ci.com/wtfutil/wtf"><img alt="Travis Status" src="https://img.shields.io/travis/com/wtfutil/wtf/master.svg?label=travis&maxAge=43200"></a>
+    <a href="https://goreportcard.com/report/github.com/wtfutil/wtf"><img alt="Go Report Card" src="https://goreportcard.com/badge/github.com/wtfutil/wtf"></a>
+    <a href="https://twitter.com/wtfutil"><img alt="Twitter" src="https://img.shields.io/badge/follow-on%20twitter-blue.svg"></a>
+</p>
 
-# WTF
+WTF (aka 'wtfutil') is the personal information dashboard for your terminal, providing at-a-glance access to your very important but infrequently-needed stats and data.
 
-A personal terminal-based dashboard utility, designed for
-displaying infrequently-needed, but very important, daily data.
-
-#
-
-## 🎃 Hacktoberfest Participation
-
-[Hacktoberfest](https://hacktoberfest.digitalocean.com) is upon us once again. If you're participating, include `#hacktoberfest` in your PR description and we'll try to prioritize it when reviewing and merging. Offer good until Oct 31.
-
-Happy hacking! 👻
+Used by thousands of developers and tech people around the world, WTF is free and open-source. To support the continued use and development of WTF, please consider sponsoring WTF via [GitHub Sponsors](https://github.com/sponsors/senorprogrammer).
 
 #
 
-* [Installing](#installing)
-    * [Install via Homebrew](#install-via-homebrew)
-    * [Install via MacPorts](#install-via-macports)
-    * [Install via Scarf](#install-via-scarf)
-    * [Install a Binary](#install-a-binary)
-    * [Install from Source](#install-from-source)
+<p></p>
+
+* [Installation](#installation)
+    * [Installing via Homebrew](#installing-via-homebrew)
+    * [Installing via MacPorts](#installing-via-macports)
+    * [Installing a Binary](#installing-a-binary)
+    * [Installing from Source](#installing-from-source)
     * [Running via Docker](#running-via-docker)
 * [Communication](#communication)
     * [Slack](#slack)
@@ -42,9 +39,9 @@ Happy hacking! 👻
 <img src="./images/screenshot.jpg" title="screenshot" width="720" height="420" />
 </p>
 
-## Installing
+## Installation
 
-### Install via Homebrew
+### Installing via Homebrew
 
 The simplest way from Homebrew:
 
@@ -63,7 +60,7 @@ brew install wtfutil
 wtfutil
 ```
 
-### Install via MacPorts
+### Installing via MacPorts
 
 You can also install via [MacPorts](https://www.macports.org/):
 
@@ -74,17 +71,7 @@ sudo port install wtfutil
 wtfutil
 ```
 
-### Install via Scarf
-
-You can also install via [Scarf](https://scarf.sh/package/senorprogrammer/wtfutil):
-
-```console
-scarf install wtfutil
-
-wtfutil
-```
-
-### Install a Binary
+### Installing a Binary
 
 [Download the latest binary](https://github.com/wtfutil/wtf/releases) from GitHub.
 
@@ -96,13 +83,13 @@ chmod a+x /usr/local/bin/wtfutil
 
 and you should be good to go.
 
-### Install from Source
+### Installing from Source
 
 If you want to run the build command from within your `$GOPATH`:
 
 ```bash
-# Set the Go proxy variable to GoCenter
-export GOPROXY="https://gocenter.io"
+# Set the Go proxy
+export GOPROXY="https://proxy.golang.org,direct"
 
 # Disable the Go checksum database
 export GOSUMDB=off
@@ -119,13 +106,26 @@ make run
 If you want to run the build command from a folder that is not in your `$GOPATH`:
 
 ```bash
-# Set the Go proxy variable to GoCenter
-export GOPROXY="https://gocenter.io"
+# Set the Go proxy
+export GOPROXY="https://proxy.golang.org,direct"
 
 go get -u github.com/wtfutil/wtf
 cd $GOPATH/src/github.com/wtfutil/wtf
 make install
 make run
+```
+
+### Installing from Source using Docker
+
+All building is done inside a docker container. You can then copy the binary to
+your local machine.
+
+```bash
+curl -o Dockerfile.build https://raw.githubusercontent.com/wtfutil/wtf/master/Dockerfile.build
+docker build -f Dockerfile.build -t wtfutil --build-arg=version=master .
+docker create --name wtf_build wtfutil
+docker cp wtf_build:/usr/local/bin/wtfutil ~/.local/bin
+docker rm wtf_build
 ```
 
 **Note:** WTF is _only_ compatible with Go versions **1.12.0** or later (due to the use of Go modules and newer standard library functions). If you would like to use `gccgo` to compile, you _must_ use `gccgo-9` or later which introduces support for Go modules.
@@ -135,14 +135,20 @@ make run
 You can run `wtf` inside a docker container:
 
 ```bash
-# download the source
-git clone https://github.com/wtfutil/wtf
+# download or create the Dockerfile
+curl -o Dockerfile https://raw.githubusercontent.com/wtfutil/wtf/master/Dockerfile
 
 # build the docker container
 docker build -t wtfutil .
 
+# or for a particular tag or branch
+docker build --build-arg=version=v0.25.0 -t wtfutil .
+
 # run the container
 docker run -it wtfutil
+
+# run container with a local config file
+docker run -it -v path/to/config.yml:/config/config.yml wtfutil --config=/config/config.yml
 ```
 
 ## Communication
@@ -155,7 +161,7 @@ Find #wtfutil on https://gophers.slack.com/ and join us.
 
 ### Twitter
 
-Also, follow [on Twitter](https://twitter.com/wtfutil) for news and latest updates. 
+Also, follow [on Twitter](https://twitter.com/wtfutil) for news and latest updates.
 
 ## Documentation
 
@@ -172,6 +178,7 @@ Modules are the chunks of functionality that make WTF useful. Modules are added 
 
 Some interesting modules you might consider adding to get you started:
 
+* [DigitalOcean](https://wtfutil.com/modules/digitalocean/)
 * [GitHub](https://wtfutil.com/modules/github/)
 * [Google Calendar](https://wtfutil.com/modules/google/gcal/)
 * [HackerNews](https://wtfutil.com/modules/hackernews/)
@@ -190,9 +197,9 @@ If there is a bug that you really need to have fixed or a feature you really wan
 
 ## Contributing to the Source Code
 
-First, please read [Talk, then code](https://dave.cheney.net/2019/02/18/talk-then-code) by Dave Cheney. It's great advice and will often save a lot of time and effort. 
+First, kindly read [Talk, then code](https://dave.cheney.net/2019/02/18/talk-then-code) by Dave Cheney. It's great advice and will often save a lot of time and effort.
 
-Next, please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests.
+Next, kindly read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests.
 
 Then create your branch, write your code, submit your PR, and join the rest of the awesome people who've contributed their time and effort towards WTF. Without their contributors, WTF wouldn't be possible.
 
@@ -211,24 +218,187 @@ Dependency management in WTF is handled by [Go modules](https://github.com/golan
 ## Contributors
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
-<!-- prettier-ignore -->
-| [<img src="https://avatars0.githubusercontent.com/u/6413?v=4" width="48px;" alt="Chris Cummer"/><br /><sub><b>Chris Cummer</b></sub>](https://twitter.com/senorprogrammer)<br /> | [<img src="https://avatars2.githubusercontent.com/u/3252403?v=4" width="48px;" alt="Anand Sudhir Prayaga"/><br /><sub><b>Anand Sudhir Prayaga</b></sub>](https://github.com/anandsudhir)<br /> | [<img src="https://avatars1.githubusercontent.com/u/34973359?v=4" width="48px;" alt="Hossein Mehrabi"/><br /><sub><b>Hossein Mehrabi</b></sub>](https://github.com/jeangovil)<br /> | [<img src="https://avatars0.githubusercontent.com/u/11779018?v=4" width="48px;" alt="FengYa"/><br /><sub><b>FengYa</b></sub>](https://github.com/Fengyalv)<br /> | [<img src="https://avatars2.githubusercontent.com/u/17337753?v=4" width="48px;" alt="deltax"/><br /><sub><b>deltax</b></sub>](https://fluxionnetwork.github.io/fluxion/)<br /> | [<img src="https://avatars0.githubusercontent.com/u/1319630?v=4" width="48px;" alt="Bill Keenan"/><br /><sub><b>Bill Keenan</b></sub>](https://github.com/BillKeenan)<br /> | [<img src="https://avatars2.githubusercontent.com/u/118081?v=4" width="48px;" alt="June S"/><br /><sub><b>June S</b></sub>](http://blog.sapara.com)<br /> |
-| :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| [<img src="https://avatars3.githubusercontent.com/u/16461061?v=4" width="48px;" alt="liyiheng"/><br /><sub><b>liyiheng</b></sub>](https://github.com/XanthusL)<br /> | [<img src="https://avatars2.githubusercontent.com/u/9014288?v=4" width="48px;" alt="baustinanki"/><br /><sub><b>baustinanki</b></sub>](https://github.com/baustinanki)<br /> | [<img src="https://avatars0.githubusercontent.com/u/371475?v=4" width="48px;" alt="lucus lee"/><br /><sub><b>lucus lee</b></sub>](https://github.com/lixin9311)<br /> | [<img src="https://avatars1.githubusercontent.com/u/7537841?v=4" width="48px;" alt="Mike Lloyd"/><br /><sub><b>Mike Lloyd</b></sub>](https://github.com/mxplusb)<br /> | [<img src="https://avatars3.githubusercontent.com/u/10998?v=4" width="48px;" alt="Sergio Rubio"/><br /><sub><b>Sergio Rubio</b></sub>](http://rubiojr.rbel.co)<br /> | [<img src="https://avatars3.githubusercontent.com/u/17374492?v=4" width="48px;" alt="Farhad Farahi"/><br /><sub><b>Farhad Farahi</b></sub>](https://github.com/FarhadF)<br /> | [<img src="https://avatars1.githubusercontent.com/u/634604?v=4" width="48px;" alt="Lasantha Kularatne"/><br /><sub><b>Lasantha Kularatne</b></sub>](http://lasantha.blogspot.com/)<br /> |
-| [<img src="https://avatars1.githubusercontent.com/u/823331?v=4" width="48px;" alt="Mark Old"/><br /><sub><b>Mark Old</b></sub>](https://github.com/dlom)<br /> | [<img src="https://avatars0.githubusercontent.com/u/5546718?v=4" width="48px;" alt="flw"/><br /><sub><b>flw</b></sub>](http://flw.tools/)<br /> | [<img src="https://avatars0.githubusercontent.com/u/6024927?v=4" width="48px;" alt="David Barda"/><br /><sub><b>David Barda</b></sub>](https://github.com/davebarda)<br /> | [<img src="https://avatars2.githubusercontent.com/u/4261980?v=4" width="48px;" alt="Geoff Lee"/><br /><sub><b>Geoff Lee</b></sub>](https://github.com/matrinox)<br /> | [<img src="https://avatars3.githubusercontent.com/u/1022918?v=4" width="48px;" alt="George Opritescu"/><br /><sub><b>George Opritescu</b></sub>](http://international.github.io)<br /> | [<img src="https://avatars3.githubusercontent.com/u/497310?v=4" width="48px;" alt="Grazfather"/><br /><sub><b>Grazfather</b></sub>](https://twitter.com/Grazfather)<br /> | [<img src="https://avatars2.githubusercontent.com/u/1691120?v=4" width="48px;" alt="Michael Cordell"/><br /><sub><b>Michael Cordell</b></sub>](http://www.mikecordell.com/)<br /> |
-| [<img src="https://avatars2.githubusercontent.com/u/1215497?v=4" width="48px;" alt="Patrick José Pereira"/><br /><sub><b>Patrick José Pereira</b></sub>](http://patrick.ibexcps.com)<br /> | [<img src="https://avatars2.githubusercontent.com/u/1483092?v=4" width="48px;" alt="sherod taylor"/><br /><sub><b>sherod taylor</b></sub>](https://github.com/sherodtaylor)<br /> | [<img src="https://avatars2.githubusercontent.com/u/3062663?v=4" width="48px;" alt="Andrew Scott"/><br /><sub><b>Andrew Scott</b></sub>](http://cogentia.io)<br /> | [<img src="https://avatars1.githubusercontent.com/u/12018440?v=4" width="48px;" alt="Lassi Piironen"/><br /><sub><b>Lassi Piironen</b></sub>](https://github.com/lsipii)<br /> | [<img src="https://avatars0.githubusercontent.com/u/14799210?v=4" width="48px;" alt="BlackWebWolf"/><br /><sub><b>BlackWebWolf</b></sub>](https://github.com/BlackWebWolf)<br /> | [<img src="https://avatars0.githubusercontent.com/u/1894885?v=4" width="48px;" alt="andrewzolotukhin"/><br /><sub><b>andrewzolotukhin</b></sub>](https://github.com/andrewzolotukhin)<br /> | [<img src="https://avatars1.githubusercontent.com/u/8568280?v=4" width="48px;" alt="Leon Stigter"/><br /><sub><b>Leon Stigter</b></sub>](https://retgits.github.io)<br /> |
-| [<img src="https://avatars3.githubusercontent.com/u/21756?v=4" width="48px;" alt="Amr Tamimi"/><br /><sub><b>Amr Tamimi</b></sub>](https://tamimi.se)<br /> | [<img src="https://avatars3.githubusercontent.com/u/3717137?v=4" width="48px;" alt="Jagdeep Singh"/><br /><sub><b>Jagdeep Singh</b></sub>](https://jagdeep.me)<br /> | [<img src="https://avatars0.githubusercontent.com/u/889171?v=4" width="48px;" alt="Lineu Felipe"/><br /><sub><b>Lineu Felipe</b></sub>](https://github.com/darkSasori)<br /> | [<img src="https://avatars2.githubusercontent.com/u/159124?v=4" width="48px;" alt="Konstantin"/><br /><sub><b>Konstantin</b></sub>](https://github.com/kvj)<br /> | [<img src="https://avatars2.githubusercontent.com/u/6044920?v=4" width="48px;" alt="Brendan O'Leary"/><br /><sub><b>Brendan O'Leary</b></sub>](http://www.brendanoleary.com)<br /> | [<img src="https://avatars2.githubusercontent.com/u/1226441?v=4" width="48px;" alt="bertl4398"/><br /><sub><b>bertl4398</b></sub>](https://github.com/bertl4398)<br /> | [<img src="https://avatars2.githubusercontent.com/u/6553695?v=4" width="48px;" alt="Ferenc-"/><br /><sub><b>Ferenc-</b></sub>](https://github.com/Ferenc-)<br /> |
-| [<img src="https://avatars1.githubusercontent.com/u/952036?v=4" width="48px;" alt="Rohan Verma"/><br /><sub><b>Rohan Verma</b></sub>](http://rohanverma.net)<br /> | [<img src="https://avatars1.githubusercontent.com/u/19293566?v=4" width="48px;" alt="Tim Fitzgerald"/><br /><sub><b>Tim Fitzgerald</b></sub>](https://github.com/fimtitzgerald)<br /> | [<img src="https://avatars2.githubusercontent.com/u/1081051?v=4" width="48px;" alt="Federico Ruggi"/><br /><sub><b>Federico Ruggi</b></sub>](https://github.com/ruggi)<br /> | [<img src="https://avatars2.githubusercontent.com/u/7293328?v=4" width="48px;" alt="Craig Woodward"/><br /><sub><b>Craig Woodward</b></sub>](https://github.com/ctwoodward)<br /> | [<img src="https://avatars3.githubusercontent.com/u/15367484?v=4" width="48px;" alt="ReadmeCritic"/><br /><sub><b>ReadmeCritic</b></sub>](https://twitter.com/ReadmeCritic)<br /> | [<img src="https://avatars0.githubusercontent.com/u/141402?v=4" width="48px;" alt="Eugene"/><br /><sub><b>Eugene</b></sub>](https://github.com/jdevelop)<br /> | [<img src="https://avatars1.githubusercontent.com/u/12983705?s=460&v=4" width="48px;" alt="Kenny Wu"/><br /><sub><b>Kenny Wu</b></sub>](https://github.com/Trinergy)<br /> |
-| [<img src="https://avatars0.githubusercontent.com/u/538234?v=4" width="48px;" alt="Renán Romero"/><br /><sub><b>Renán Romero</b></sub>](http://www.romeroruiz.com)<br /> | [<img src="https://avatars1.githubusercontent.com/u/5031240?v=4" width="48px;" alt="Bastian Groß"/><br /><sub><b>Bastian Groß</b></sub>](https://github.com/sticreations)<br /> | [<img src="https://avatars1.githubusercontent.com/u/2496835?v=4" width="48px;" alt="nicholas-eden"/><br /><sub><b>nicholas-eden</b></sub>](https://github.com/nicholas-eden)<br /> | [<img src="https://avatars1.githubusercontent.com/u/279390?v=4" width="48px;" alt="Dan Rabinowitz"/><br /><sub><b>Dan Rabinowitz</b></sub>](https://github.com/danrabinowitz)<br /> | [<img src="https://avatars1.githubusercontent.com/u/6897575?v=4" width="48px;" alt="David Missmann"/><br /><sub><b>David Missmann</b></sub>](https://github.com/dvdmssmnn)<br /> | [<img src="https://avatars2.githubusercontent.com/u/882006?v=4" width="48px;" alt="Mathias Weber"/><br /><sub><b>Mathias Weber</b></sub>](https://github.com/mweb)<br /> | [<img src="https://avatars1.githubusercontent.com/u/32081703?v=4" width="48px;" alt="TheRedSpy15"/><br /><sub><b>TheRedSpy15</b></sub>](https://github.com/TheRedSpy15)<br /> |
-| [<img src="https://avatars0.githubusercontent.com/u/9569897?v=4" width="48px;" alt="Harald Nordgren"/><br /><sub><b>Harald Nordgren</b></sub>](https://www.linkedin.com/in/harald-nordgren-44778192)<br /> | [<img src="https://avatars0.githubusercontent.com/u/11583824?v=4" width="48px;" alt="Matei Alexandru Gardus"/><br /><sub><b>Matei Alexandru Gardus</b></sub>](http://stormfirefox1.github.io)<br /> | [<img src="https://avatars2.githubusercontent.com/u/1523955?v=4" width="48px;" alt="Sean Smith"/><br /><sub><b>Sean Smith</b></sub>](https://github.com/Seanstoppable)<br /> | [<img src="https://avatars1.githubusercontent.com/u/1646238?v=4" width="48px;" alt="Halil Kaskavalci"/><br /><sub><b>Halil Kaskavalci</b></sub>](http://kaskavalci.com)<br /> | [<img src="https://avatars2.githubusercontent.com/u/246715?v=4" width="48px;" alt="Johan Denoyer"/><br /><sub><b>Johan Denoyer</b></sub>](http://www.johandenoyer.fr)<br /> | [<img src="https://avatars1.githubusercontent.com/u/593516?v=4" width="48px;" alt="Jelle Vink"/><br /><sub><b>Jelle Vink</b></sub>](https://skymeyer.be)<br /> | [<img src="https://avatars1.githubusercontent.com/u/3997333?v=4" width="48px;" alt="Devin Collins"/><br /><sub><b>Devin Collins</b></sub>](http://imdevinc.com)<br /> |
-| [<img src="https://avatars3.githubusercontent.com/u/18333?v=4" width="48px;" alt="Danne Stayskal"/><br /><sub><b>Danne Stayskal</b></sub>](http://danne.stayskal.com/)<br /> | [<img src="https://avatars1.githubusercontent.com/u/2006658?v=4" width="48px;" alt="Max Beizer"/><br /><sub><b>Max Beizer</b></sub>](https://www.maxbeizer.com)<br /> | [<img src="https://avatars1.githubusercontent.com/u/194392?v=4" width="48px;" alt="E:V:A"/><br /><sub><b>E:V:A</b></sub>](http://tinyurl.com/nwmj4as)<br /> | [<img src="https://avatars0.githubusercontent.com/u/1425500?v=4" width="48px;" alt="Gabriel"/><br /><sub><b>Gabriel</b></sub>](https://github.com/GaboFDC)<br /> | [<img src="https://avatars2.githubusercontent.com/u/10111411?v=4" width="48px;" alt="Andrew Scibek"/><br /><sub><b>Andrew Scibek</b></sub>](https://github.com/AndrewScibek)<br /> | [<img src="https://avatars0.githubusercontent.com/u/29709822?v=4" width="48px;" alt="FriedCosey"/><br /><sub><b>FriedCosey</b></sub>](https://github.com/FriedCosey)<br /> | [<img src="https://avatars1.githubusercontent.com/u/3891?v=4" width="48px;" alt="Michele Gerarduzzi"/><br /><sub><b>Michele Gerarduzzi</b></sub>](https://michelegera.dev/)<br /> |
-| [<img src="https://avatars3.githubusercontent.com/u/13438569?v=4" width="48px;" alt="Jack Morris"/><br /><sub><b>Jack Morris</b></sub>](https://github.com/rudolphjacksonm)<br /> | [<img src="https://avatars0.githubusercontent.com/u/14993807?v=4" width="48px;" alt="foorb"/><br /><sub><b>foorb</b></sub>](https://github.com/foorb)<br /> | [<img src="https://avatars0.githubusercontent.com/u/5819098?v=4" width="48px;" alt="Levi Baber"/><br /><sub><b>Levi Baber</b></sub>](http://researchit.las.iastate.edu)<br /> | [<img src="https://avatars0.githubusercontent.com/u/38514?v=4" width="48px;" alt="Graham Anderson"/><br /><sub><b>Graham Anderson</b></sub>](https://github.com/gnanderson)<br /> | [<img src="https://avatars2.githubusercontent.com/u/1936828?v=4" width="48px;" alt="Romain Bossart"/><br /><sub><b>Romain Bossart</b></sub>](https://github.com/bosr)<br /> | [<img src="https://avatars0.githubusercontent.com/u/969838?v=4" width="48px;" alt="Kirill Motkov"/><br /><sub><b>Kirill Motkov</b></sub>](http://eonix.ru)<br /> | [<img src="https://avatars1.githubusercontent.com/u/3665694?v=4" width="48px;" alt="Brian Choromanski"/><br /><sub><b>Brian Choromanski</b></sub>](http://www.BrianChoromanski.com)<br /> |
-| [<img src="https://avatars0.githubusercontent.com/u/1302304?v=4" width="48px;" alt="Sean DuBois"/><br /><sub><b>Sean DuBois</b></sub>](http://siobud.com)<br /> | [<img src="https://avatars1.githubusercontent.com/u/47195730?v=4" width="48px;" alt="Gary Kim"/><br /><sub><b>Gary Kim</b></sub>](https://github.com/gary-kim)<br /> | [<img src="https://avatars1.githubusercontent.com/u/6660171?v=4" width="48px;" alt="Dylan"/><br /><sub><b>Dylan</b></sub>](https://dylanbartels.com)<br /> | [<img src="https://avatars0.githubusercontent.com/u/1990354?v=4" width="48px;" alt="Dmytro Prokhorenkov"/><br /><sub><b>Dmytro Prokhorenkov</b></sub>](http://liet.me)<br /> | [<img src="https://avatars1.githubusercontent.com/u/590442?v=4" width="48px;" alt="Elliot"/><br /><sub><b>Elliot</b></sub>](https://github.com/elliotrushton)<br /> | [<img src="https://avatars3.githubusercontent.com/u/1580956?v=4" width="48px;" alt="chenrui"/><br /><sub><b>chenrui</b></sub>](http://chenrui.dev)<br /> | [<img src="https://avatars0.githubusercontent.com/u/7624765?v=4" width="48px;" alt="Andrew Suderman"/><br /><sub><b>Andrew Suderman</b></sub>](https://github.com/sudermanjr)<br /> |
-| [<img src="https://avatars3.githubusercontent.com/u/2373856?v=4" width="48px;" alt="Bob 'Wombat' Hogg"/><br /><sub><b>Bob 'Wombat' Hogg</b></sub>](https://github.com/rwhogg)<br /> | [<img src="https://avatars0.githubusercontent.com/u/143462?v=4" width="48px;" alt="Christopher Hall"/><br /><sub><b>Christopher Hall</b></sub>](https://github.com/hxw)<br /> | [<img src="https://avatars1.githubusercontent.com/u/3451557?v=4" width="48px;" alt="Heitor Neiva"/><br /><sub><b>Heitor Neiva</b></sub>](https://github.com/hneiva)<br /> | [<img src="https://avatars3.githubusercontent.com/u/618376?v=4" width="48px;" alt="Herby Gillot"/><br /><sub><b>Herby Gillot</b></sub>](https://github.com/herbygillot)<br /> | [<img src="https://avatars3.githubusercontent.com/u/382352?v=4" width="48px;" alt="James Canning"/><br /><sub><b>James Canning</b></sub>](http://brudil.com)<br /> | [<img src="https://avatars1.githubusercontent.com/u/45892?v=4" width="48px;" alt="jeffz"/><br /><sub><b>jeffz</b></sub>](https://twitter.com/jeffz4000)<br /> | [<img src="https://avatars0.githubusercontent.com/u/1764035?v=4" width="48px;" alt="Mikkel Jeppesen Juhl"/><br /><sub><b>Mikkel Jeppesen Juhl</b></sub>](https://mikkeljuhl.com)<br /> |
-| [<img src="https://avatars1.githubusercontent.com/u/963290?v=4" width="48px;" alt="Erik"/><br /><sub><b>Erik</b></sub>](https://github.com/lesteenman)<br /> | [<img src="https://avatars1.githubusercontent.com/u/155574?v=4" width="48px;" alt="Nate Yourchuck"/><br /><sub><b>Nate Yourchuck</b></sub>](https://github.com/nyourchuck)<br /> | [<img src="https://avatars3.githubusercontent.com/u/4335849?v=4" width="48px;" alt="Casey Primozic"/><br /><sub><b>Casey Primozic</b></sub>](https://cprimozic.net/)<br /> | [<img src="https://avatars3.githubusercontent.com/u/2430915?v=4" width="48px;" alt="Alvaro [Andor]"/><br /><sub><b>Alvaro [Andor]</b></sub>](http://pierdelacabeza.com/maruja)<br /> | [<img src="https://avatars1.githubusercontent.com/u/17101621?v=4" width="48px;" alt="Joel Valentine"/><br /><sub><b>Joel Valentine</b></sub>](https://github.com/Midnight-Conqueror)<br /> | [<img src="https://avatars0.githubusercontent.com/u/4738210?v=4" width="48px;" alt="Viktor Braun"/><br /><sub><b>Viktor Braun</b></sub>](https://www.viktor-braun.de)<br /> | [<img src="https://avatars3.githubusercontent.com/u/3877652?v=4" width="48px;" alt="ChrisDBrown"/><br /><sub><b>ChrisDBrown</b></sub>](https://www.chrisdbrown.co.uk/)<br /> |
-| [<img src="https://avatars2.githubusercontent.com/u/582821?v=4" width="48px;" alt="Narendra L"/><br /><sub><b>Narendra L</b></sub>](https://narengowda.github.io/)<br /> | [<img src="https://avatars1.githubusercontent.com/u/24609103?v=4" width="48px;" alt="ibaum"/><br /><sub><b>ibaum</b></sub>](https://github.com/ibaum)<br /> | [<img src="https://avatars3.githubusercontent.com/u/566185?v=4" width="48px;" alt="Tim Scheuermann"/><br /><sub><b>Tim Scheuermann</b></sub>](https://github.com/noxer)<br /> | [<img src="https://avatars0.githubusercontent.com/u/2682729?v=4" width="48px;" alt="Indradhanush Gupta"/><br /><sub><b>Indradhanush Gupta</b></sub>](https://indradhanush.github.io/)<br /> | [<img src="https://avatars3.githubusercontent.com/u/7926849?v=4" width="48px;" alt="Victor Hugo Avelar Ossorio"/><br /><sub><b>Victor Hugo Avelar Ossorio</b></sub>](https://victoravelar.com)<br /> | [<img src="https://avatars3.githubusercontent.com/u/4001640?v=4" width="48px;" alt="Steven Whitehead"/><br /><sub><b>Steven Whitehead</b></sub>](https://github.com/scw007)<br /> | [<img src="https://avatars0.githubusercontent.com/u/660580?v=4" width="48px;" alt="Lawrence Craft"/><br /><sub><b>Lawrence Craft</b></sub>](https://github.com/lawrencecraft)<br /> |
-| [<img src="https://avatars1.githubusercontent.com/u/1388071?v=4" width="48px;" alt="Avi Press"/><br /><sub><b>Avi Press</b></sub>](http://avi.press)<br /> | [<img src="https://avatars0.githubusercontent.com/u/22562624?v=4" width="48px;" alt="Sarah Kraßnigg"/><br /><sub><b>Sarah Kraßnigg</b></sub>](https://github.com/Tardog)<br /> | [<img src="https://avatars1.githubusercontent.com/u/4923990?v=4" width="48px;" alt="Jason Schweier"/><br /><sub><b>Jason Schweier</b></sub>](http://jmks.ca)<br /> | [<img src="https://avatars2.githubusercontent.com/u/8268483?v=4" width="48px;" alt="Massa"/><br /><sub><b>Massa</b></sub>](https://github.com/massa1240)<br /> | [<img src="https://avatars3.githubusercontent.com/u/8546140?v=4" width="48px;" alt="Vighnesh SK"/><br /><sub><b>Vighnesh SK</b></sub>](http://boot-error.github.io)<br /> | [<img src="https://avatars3.githubusercontent.com/u/2349184?v=4" width="48px;" alt="Alex Fornuto"/><br /><sub><b>Alex Fornuto</b></sub>](http://alexfornuto.com)<br /> | [<img src="https://avatars0.githubusercontent.com/u/30630257?v=4" width="48px;" alt="stevenwhitehead"/><br /><sub><b>stevenwhitehead</b></sub>](https://github.com/stevenwhitehead)<br /> |
-| [<img src="https://avatars2.githubusercontent.com/u/55875303?v=4" width="48px;" alt="Johan Denoyer"/><br /><sub><b>Johan Denoyer</b></sub>](https://github.com/jdenoy-saagie)<br /> | [<img src="https://avatars1.githubusercontent.com/u/4749355?v=4" width="48px;" alt="Albert Salim"/><br /><sub><b>Albert Salim</b></sub>](https://albertsalim.dev)<br /> | [<img src="https://avatars1.githubusercontent.com/u/6017470?v=4" width="48px;" alt="Ricardo N Feliciano"/><br /><sub><b>Ricardo N Feliciano</b></sub>](https://Feliciano.Tech)<br /> | [<img src="https://avatars3.githubusercontent.com/u/42009880?v=4" width="48px;" alt="Omer Davutoglu"/><br /><sub><b>Omer Davutoglu</b></sub>](https://github.com/3mard)<br /> | [<img src="https://avatars0.githubusercontent.com/u/1871299?v=4" width="48px;" alt="Hemu"/><br /><sub><b>Hemu</b></sub>](https://github.com/hemu)<br /> | [<img src="https://avatars0.githubusercontent.com/u/18027087?v=4" width="48px;" alt="Dan Bent"/><br /><sub><b>Dan Bent</b></sub>](https://github.com/Daanikus)<br /> |
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tr>
+    <td align="center"><a href="https://twitter.com/senorprogrammer"><img src="https://avatars0.githubusercontent.com/u/6413?v=4" width="48px;" alt=""/><br /><sub><b>Chris Cummer</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/anandsudhir"><img src="https://avatars2.githubusercontent.com/u/3252403?v=4" width="48px;" alt=""/><br /><sub><b>Anand Sudhir Prayaga</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/jeangovil"><img src="https://avatars1.githubusercontent.com/u/34973359?v=4" width="48px;" alt=""/><br /><sub><b>Hossein Mehrabi</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/Fengyalv"><img src="https://avatars0.githubusercontent.com/u/11779018?v=4" width="48px;" alt=""/><br /><sub><b>FengYa</b></sub></a><br /></td>
+    <td align="center"><a href="https://fluxionnetwork.github.io/fluxion/"><img src="https://avatars2.githubusercontent.com/u/17337753?v=4" width="48px;" alt=""/><br /><sub><b>deltax</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/BillKeenan"><img src="https://avatars0.githubusercontent.com/u/1319630?v=4" width="48px;" alt=""/><br /><sub><b>Bill Keenan</b></sub></a><br /></td>
+    <td align="center"><a href="http://blog.sapara.com"><img src="https://avatars2.githubusercontent.com/u/118081?v=4" width="48px;" alt=""/><br /><sub><b>June S</b></sub></a><br /></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://github.com/XanthusL"><img src="https://avatars3.githubusercontent.com/u/16461061?v=4" width="48px;" alt=""/><br /><sub><b>liyiheng</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/baustinanki"><img src="https://avatars2.githubusercontent.com/u/9014288?v=4" width="48px;" alt=""/><br /><sub><b>baustinanki</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/lixin9311"><img src="https://avatars0.githubusercontent.com/u/371475?v=4" width="48px;" alt=""/><br /><sub><b>lucus lee</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/mxplusb"><img src="https://avatars1.githubusercontent.com/u/7537841?v=4" width="48px;" alt=""/><br /><sub><b>Mike Lloyd</b></sub></a><br /></td>
+    <td align="center"><a href="http://rubiojr.rbel.co"><img src="https://avatars3.githubusercontent.com/u/10998?v=4" width="48px;" alt=""/><br /><sub><b>Sergio Rubio</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/FarhadF"><img src="https://avatars3.githubusercontent.com/u/17374492?v=4" width="48px;" alt=""/><br /><sub><b>Farhad Farahi</b></sub></a><br /></td>
+    <td align="center"><a href="http://lasantha.blogspot.com/"><img src="https://avatars1.githubusercontent.com/u/634604?v=4" width="48px;" alt=""/><br /><sub><b>Lasantha Kularatne</b></sub></a><br /></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://github.com/dlom"><img src="https://avatars1.githubusercontent.com/u/823331?v=4" width="48px;" alt=""/><br /><sub><b>Mark Old</b></sub></a><br /></td>
+    <td align="center"><a href="http://flw.tools/"><img src="https://avatars0.githubusercontent.com/u/5546718?v=4" width="48px;" alt=""/><br /><sub><b>flw</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/davebarda"><img src="https://avatars0.githubusercontent.com/u/6024927?v=4" width="48px;" alt=""/><br /><sub><b>David Barda</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/matrinox"><img src="https://avatars2.githubusercontent.com/u/4261980?v=4" width="48px;" alt=""/><br /><sub><b>Geoff Lee</b></sub></a><br /></td>
+    <td align="center"><a href="http://international.github.io"><img src="https://avatars3.githubusercontent.com/u/1022918?v=4" width="48px;" alt=""/><br /><sub><b>George Opritescu</b></sub></a><br /></td>
+    <td align="center"><a href="https://twitter.com/Grazfather"><img src="https://avatars3.githubusercontent.com/u/497310?v=4" width="48px;" alt=""/><br /><sub><b>Grazfather</b></sub></a><br /></td>
+    <td align="center"><a href="http://www.mikecordell.com/"><img src="https://avatars2.githubusercontent.com/u/1691120?v=4" width="48px;" alt=""/><br /><sub><b>Michael Cordell</b></sub></a><br /></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="http://patrick.ibexcps.com"><img src="https://avatars2.githubusercontent.com/u/1215497?v=4" width="48px;" alt=""/><br /><sub><b>Patrick José Pereira</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/sherodtaylor"><img src="https://avatars2.githubusercontent.com/u/1483092?v=4" width="48px;" alt=""/><br /><sub><b>sherod taylor</b></sub></a><br /></td>
+    <td align="center"><a href="http://cogentia.io"><img src="https://avatars2.githubusercontent.com/u/3062663?v=4" width="48px;" alt=""/><br /><sub><b>Andrew Scott</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/lsipii"><img src="https://avatars1.githubusercontent.com/u/12018440?v=4" width="48px;" alt=""/><br /><sub><b>Lassi Piironen</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/BlackWebWolf"><img src="https://avatars0.githubusercontent.com/u/14799210?v=4" width="48px;" alt=""/><br /><sub><b>BlackWebWolf</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/andrewzolotukhin"><img src="https://avatars0.githubusercontent.com/u/1894885?v=4" width="48px;" alt=""/><br /><sub><b>andrewzolotukhin</b></sub></a><br /></td>
+    <td align="center"><a href="https://retgits.github.io"><img src="https://avatars1.githubusercontent.com/u/8568280?v=4" width="48px;" alt=""/><br /><sub><b>Leon Stigter</b></sub></a><br /></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://tamimi.se"><img src="https://avatars3.githubusercontent.com/u/21756?v=4" width="48px;" alt=""/><br /><sub><b>Amr Tamimi</b></sub></a><br /></td>
+    <td align="center"><a href="https://jagdeep.me"><img src="https://avatars3.githubusercontent.com/u/3717137?v=4" width="48px;" alt=""/><br /><sub><b>Jagdeep Singh</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/darkSasori"><img src="https://avatars0.githubusercontent.com/u/889171?v=4" width="48px;" alt=""/><br /><sub><b>Lineu Felipe</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/kvj"><img src="https://avatars2.githubusercontent.com/u/159124?v=4" width="48px;" alt=""/><br /><sub><b>Konstantin</b></sub></a><br /></td>
+    <td align="center"><a href="http://www.brendanoleary.com"><img src="https://avatars2.githubusercontent.com/u/6044920?v=4" width="48px;" alt=""/><br /><sub><b>Brendan O'Leary</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/bertl4398"><img src="https://avatars2.githubusercontent.com/u/1226441?v=4" width="48px;" alt=""/><br /><sub><b>bertl4398</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/Ferenc-"><img src="https://avatars2.githubusercontent.com/u/6553695?v=4" width="48px;" alt=""/><br /><sub><b>Ferenc-</b></sub></a><br /></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="http://rohanverma.net"><img src="https://avatars1.githubusercontent.com/u/952036?v=4" width="48px;" alt=""/><br /><sub><b>Rohan Verma</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/fimtitzgerald"><img src="https://avatars1.githubusercontent.com/u/19293566?v=4" width="48px;" alt=""/><br /><sub><b>Tim Fitzgerald</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/ruggi"><img src="https://avatars2.githubusercontent.com/u/1081051?v=4" width="48px;" alt=""/><br /><sub><b>Federico Ruggi</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/ctwoodward"><img src="https://avatars2.githubusercontent.com/u/7293328?v=4" width="48px;" alt=""/><br /><sub><b>Craig Woodward</b></sub></a><br /></td>
+    <td align="center"><a href="https://twitter.com/ReadmeCritic"><img src="https://avatars3.githubusercontent.com/u/15367484?v=4" width="48px;" alt=""/><br /><sub><b>ReadmeCritic</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/jdevelop"><img src="https://avatars0.githubusercontent.com/u/141402?v=4" width="48px;" alt=""/><br /><sub><b>Eugene</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/Trinergy"><img src="https://avatars1.githubusercontent.com/u/12983705?s=460&v=4" width="48px;" alt=""/><br /><sub><b>Kenny Wu</b></sub></a><br /></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="http://www.romeroruiz.com"><img src="https://avatars0.githubusercontent.com/u/538234?v=4" width="48px;" alt=""/><br /><sub><b>Renán Romero</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/sticreations"><img src="https://avatars1.githubusercontent.com/u/5031240?v=4" width="48px;" alt=""/><br /><sub><b>Bastian Groß</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/nicholas-eden"><img src="https://avatars1.githubusercontent.com/u/2496835?v=4" width="48px;" alt=""/><br /><sub><b>nicholas-eden</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/danrabinowitz"><img src="https://avatars1.githubusercontent.com/u/279390?v=4" width="48px;" alt=""/><br /><sub><b>Dan Rabinowitz</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/dvdmssmnn"><img src="https://avatars1.githubusercontent.com/u/6897575?v=4" width="48px;" alt=""/><br /><sub><b>David Missmann</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/mweb"><img src="https://avatars2.githubusercontent.com/u/882006?v=4" width="48px;" alt=""/><br /><sub><b>Mathias Weber</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/TheRedSpy15"><img src="https://avatars1.githubusercontent.com/u/32081703?v=4" width="48px;" alt=""/><br /><sub><b>TheRedSpy15</b></sub></a><br /></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://www.linkedin.com/in/harald-nordgren-44778192"><img src="https://avatars0.githubusercontent.com/u/9569897?v=4" width="48px;" alt=""/><br /><sub><b>Harald Nordgren</b></sub></a><br /></td>
+    <td align="center"><a href="http://stormfirefox1.github.io"><img src="https://avatars0.githubusercontent.com/u/11583824?v=4" width="48px;" alt=""/><br /><sub><b>Matei Alexandru Gardus</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/Seanstoppable"><img src="https://avatars2.githubusercontent.com/u/1523955?v=4" width="48px;" alt=""/><br /><sub><b>Sean Smith</b></sub></a><br /></td>
+    <td align="center"><a href="http://kaskavalci.com"><img src="https://avatars1.githubusercontent.com/u/1646238?v=4" width="48px;" alt=""/><br /><sub><b>Halil Kaskavalci</b></sub></a><br /></td>
+    <td align="center"><a href="http://www.johandenoyer.fr"><img src="https://avatars2.githubusercontent.com/u/246715?v=4" width="48px;" alt=""/><br /><sub><b>Johan Denoyer</b></sub></a><br /></td>
+    <td align="center"><a href="https://skymeyer.be"><img src="https://avatars1.githubusercontent.com/u/593516?v=4" width="48px;" alt=""/><br /><sub><b>Jelle Vink</b></sub></a><br /></td>
+    <td align="center"><a href="http://imdevinc.com"><img src="https://avatars1.githubusercontent.com/u/3997333?v=4" width="48px;" alt=""/><br /><sub><b>Devin Collins</b></sub></a><br /></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="http://danne.stayskal.com/"><img src="https://avatars3.githubusercontent.com/u/18333?v=4" width="48px;" alt=""/><br /><sub><b>Danne Stayskal</b></sub></a><br /></td>
+    <td align="center"><a href="https://www.maxbeizer.com"><img src="https://avatars1.githubusercontent.com/u/2006658?v=4" width="48px;" alt=""/><br /><sub><b>Max Beizer</b></sub></a><br /></td>
+    <td align="center"><a href="http://tinyurl.com/nwmj4as"><img src="https://avatars1.githubusercontent.com/u/194392?v=4" width="48px;" alt=""/><br /><sub><b>E:V:A</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/GaboFDC"><img src="https://avatars0.githubusercontent.com/u/1425500?v=4" width="48px;" alt=""/><br /><sub><b>Gabriel</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/AndrewScibek"><img src="https://avatars2.githubusercontent.com/u/10111411?v=4" width="48px;" alt=""/><br /><sub><b>Andrew Scibek</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/FriedCosey"><img src="https://avatars0.githubusercontent.com/u/29709822?v=4" width="48px;" alt=""/><br /><sub><b>FriedCosey</b></sub></a><br /></td>
+    <td align="center"><a href="https://michelegera.dev/"><img src="https://avatars1.githubusercontent.com/u/3891?v=4" width="48px;" alt=""/><br /><sub><b>Michele Gerarduzzi</b></sub></a><br /></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://github.com/rudolphjacksonm"><img src="https://avatars3.githubusercontent.com/u/13438569?v=4" width="48px;" alt=""/><br /><sub><b>Jack Morris</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/foorb"><img src="https://avatars0.githubusercontent.com/u/14993807?v=4" width="48px;" alt=""/><br /><sub><b>foorb</b></sub></a><br /></td>
+    <td align="center"><a href="http://researchit.las.iastate.edu"><img src="https://avatars0.githubusercontent.com/u/5819098?v=4" width="48px;" alt=""/><br /><sub><b>Levi Baber</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/gnanderson"><img src="https://avatars0.githubusercontent.com/u/38514?v=4" width="48px;" alt=""/><br /><sub><b>Graham Anderson</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/bosr"><img src="https://avatars2.githubusercontent.com/u/1936828?v=4" width="48px;" alt=""/><br /><sub><b>Romain Bossart</b></sub></a><br /></td>
+    <td align="center"><a href="http://eonix.ru"><img src="https://avatars0.githubusercontent.com/u/969838?v=4" width="48px;" alt=""/><br /><sub><b>Kirill Motkov</b></sub></a><br /></td>
+    <td align="center"><a href="http://www.BrianChoromanski.com"><img src="https://avatars1.githubusercontent.com/u/3665694?v=4" width="48px;" alt=""/><br /><sub><b>Brian Choromanski</b></sub></a><br /></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="http://siobud.com"><img src="https://avatars0.githubusercontent.com/u/1302304?v=4" width="48px;" alt=""/><br /><sub><b>Sean DuBois</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/gary-kim"><img src="https://avatars1.githubusercontent.com/u/47195730?v=4" width="48px;" alt=""/><br /><sub><b>Gary Kim</b></sub></a><br /></td>
+    <td align="center"><a href="https://dylanbartels.com"><img src="https://avatars1.githubusercontent.com/u/6660171?v=4" width="48px;" alt=""/><br /><sub><b>Dylan</b></sub></a><br /></td>
+    <td align="center"><a href="http://liet.me"><img src="https://avatars0.githubusercontent.com/u/1990354?v=4" width="48px;" alt=""/><br /><sub><b>Dmytro Prokhorenkov</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/elliotrushton"><img src="https://avatars1.githubusercontent.com/u/590442?v=4" width="48px;" alt=""/><br /><sub><b>Elliot</b></sub></a><br /></td>
+    <td align="center"><a href="http://chenrui.dev"><img src="https://avatars3.githubusercontent.com/u/1580956?v=4" width="48px;" alt=""/><br /><sub><b>chenrui</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/sudermanjr"><img src="https://avatars0.githubusercontent.com/u/7624765?v=4" width="48px;" alt=""/><br /><sub><b>Andrew Suderman</b></sub></a><br /></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://github.com/rwhogg"><img src="https://avatars3.githubusercontent.com/u/2373856?v=4" width="48px;" alt=""/><br /><sub><b>Bob 'Wombat' Hogg</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/hxw"><img src="https://avatars0.githubusercontent.com/u/143462?v=4" width="48px;" alt=""/><br /><sub><b>Christopher Hall</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/hneiva"><img src="https://avatars1.githubusercontent.com/u/3451557?v=4" width="48px;" alt=""/><br /><sub><b>Heitor Neiva</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/herbygillot"><img src="https://avatars3.githubusercontent.com/u/618376?v=4" width="48px;" alt=""/><br /><sub><b>Herby Gillot</b></sub></a><br /></td>
+    <td align="center"><a href="http://brudil.com"><img src="https://avatars3.githubusercontent.com/u/382352?v=4" width="48px;" alt=""/><br /><sub><b>James Canning</b></sub></a><br /></td>
+    <td align="center"><a href="https://twitter.com/jeffz4000"><img src="https://avatars1.githubusercontent.com/u/45892?v=4" width="48px;" alt=""/><br /><sub><b>jeffz</b></sub></a><br /></td>
+    <td align="center"><a href="https://mikkeljuhl.com"><img src="https://avatars0.githubusercontent.com/u/1764035?v=4" width="48px;" alt=""/><br /><sub><b>Mikkel Jeppesen Juhl</b></sub></a><br /></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://github.com/lesteenman"><img src="https://avatars1.githubusercontent.com/u/963290?v=4" width="48px;" alt=""/><br /><sub><b>Erik</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/nyourchuck"><img src="https://avatars1.githubusercontent.com/u/155574?v=4" width="48px;" alt=""/><br /><sub><b>Nate Yourchuck</b></sub></a><br /></td>
+    <td align="center"><a href="https://cprimozic.net/"><img src="https://avatars3.githubusercontent.com/u/4335849?v=4" width="48px;" alt=""/><br /><sub><b>Casey Primozic</b></sub></a><br /></td>
+    <td align="center"><a href="http://pierdelacabeza.com/maruja"><img src="https://avatars3.githubusercontent.com/u/2430915?v=4" width="48px;" alt=""/><br /><sub><b>Alvaro [Andor]</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/Midnight-Conqueror"><img src="https://avatars1.githubusercontent.com/u/17101621?v=4" width="48px;" alt=""/><br /><sub><b>Joel Valentine</b></sub></a><br /></td>
+    <td align="center"><a href="https://www.viktor-braun.de"><img src="https://avatars0.githubusercontent.com/u/4738210?v=4" width="48px;" alt=""/><br /><sub><b>Viktor Braun</b></sub></a><br /></td>
+    <td align="center"><a href="https://www.chrisdbrown.co.uk/"><img src="https://avatars3.githubusercontent.com/u/3877652?v=4" width="48px;" alt=""/><br /><sub><b>ChrisDBrown</b></sub></a><br /></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://narengowda.github.io/"><img src="https://avatars2.githubusercontent.com/u/582821?v=4" width="48px;" alt=""/><br /><sub><b>Narendra L</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/ibaum"><img src="https://avatars1.githubusercontent.com/u/24609103?v=4" width="48px;" alt=""/><br /><sub><b>ibaum</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/noxer"><img src="https://avatars3.githubusercontent.com/u/566185?v=4" width="48px;" alt=""/><br /><sub><b>Tim Scheuermann</b></sub></a><br /></td>
+    <td align="center"><a href="https://indradhanush.github.io/"><img src="https://avatars0.githubusercontent.com/u/2682729?v=4" width="48px;" alt=""/><br /><sub><b>Indradhanush Gupta</b></sub></a><br /></td>
+    <td align="center"><a href="https://victoravelar.com"><img src="https://avatars3.githubusercontent.com/u/7926849?v=4" width="48px;" alt=""/><br /><sub><b>Victor Hugo Avelar Ossorio</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/scw007"><img src="https://avatars3.githubusercontent.com/u/4001640?v=4" width="48px;" alt=""/><br /><sub><b>Steven Whitehead</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/lawrencecraft"><img src="https://avatars0.githubusercontent.com/u/660580?v=4" width="48px;" alt=""/><br /><sub><b>Lawrence Craft</b></sub></a><br /></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="http://avi.press"><img src="https://avatars1.githubusercontent.com/u/1388071?v=4" width="48px;" alt=""/><br /><sub><b>Avi Press</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/Tardog"><img src="https://avatars0.githubusercontent.com/u/22562624?v=4" width="48px;" alt=""/><br /><sub><b>Sarah Kraßnigg</b></sub></a><br /></td>
+    <td align="center"><a href="http://jmks.ca"><img src="https://avatars1.githubusercontent.com/u/4923990?v=4" width="48px;" alt=""/><br /><sub><b>Jason Schweier</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/massa1240"><img src="https://avatars2.githubusercontent.com/u/8268483?v=4" width="48px;" alt=""/><br /><sub><b>Massa</b></sub></a><br /></td>
+    <td align="center"><a href="http://boot-error.github.io"><img src="https://avatars3.githubusercontent.com/u/8546140?v=4" width="48px;" alt=""/><br /><sub><b>Vighnesh SK</b></sub></a><br /></td>
+    <td align="center"><a href="http://alexfornuto.com"><img src="https://avatars3.githubusercontent.com/u/2349184?v=4" width="48px;" alt=""/><br /><sub><b>Alex Fornuto</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/stevenwhitehead"><img src="https://avatars0.githubusercontent.com/u/30630257?v=4" width="48px;" alt=""/><br /><sub><b>stevenwhitehead</b></sub></a><br /></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://github.com/jdenoy-saagie"><img src="https://avatars2.githubusercontent.com/u/55875303?v=4" width="48px;" alt=""/><br /><sub><b>Johan Denoyer</b></sub></a><br /></td>
+    <td align="center"><a href="https://albertsalim.dev"><img src="https://avatars1.githubusercontent.com/u/4749355?v=4" width="48px;" alt=""/><br /><sub><b>Albert Salim</b></sub></a><br /></td>
+    <td align="center"><a href="https://Feliciano.Tech"><img src="https://avatars1.githubusercontent.com/u/6017470?v=4" width="48px;" alt=""/><br /><sub><b>Ricardo N Feliciano</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/3mard"><img src="https://avatars3.githubusercontent.com/u/42009880?v=4" width="48px;" alt=""/><br /><sub><b>Omer Davutoglu</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/hemu"><img src="https://avatars0.githubusercontent.com/u/1871299?v=4" width="48px;" alt=""/><br /><sub><b>Hemu</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/Daanikus"><img src="https://avatars0.githubusercontent.com/u/18027087?v=4" width="48px;" alt=""/><br /><sub><b>Dan Bent</b></sub></a><br /></td>
+    <td align="center"><a href="https://cizer.dev"><img src="https://avatars3.githubusercontent.com/u/20225764?v=4" width="48px;" alt=""/><br /><sub><b>C123R</b></sub></a><br /></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://github.com/madepolli"><img src="https://avatars1.githubusercontent.com/u/7237000?v=4" width="48px;" alt=""/><br /><sub><b>Matjaž Depolli</b></sub></a><br /></td>
+    <td align="center"><a href="https://blog.schoentoon.blue"><img src="https://avatars1.githubusercontent.com/u/417618?v=4" width="48px;" alt=""/><br /><sub><b>Toon Schoenmakers</b></sub></a><br /></td>
+    <td align="center"><a href="http://tdhttt.com"><img src="https://avatars2.githubusercontent.com/u/24703459?v=4" width="48px;" alt=""/><br /><sub><b>TDHTTTT</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/jottr"><img src="https://avatars0.githubusercontent.com/u/2744198?v=4" width="48px;" alt=""/><br /><sub><b>jottr</b></sub></a><br /></td>
+    <td align="center"><a href="https://www.linkedin.com/in/nikolay-mateev-79187b167/"><img src="https://avatars3.githubusercontent.com/u/15074116?v=4" width="48px;" alt=""/><br /><sub><b>Nikolay Mateev</b></sub></a><br /></td>
+    <td align="center"><a href="https://charliewang.io"><img src="https://avatars1.githubusercontent.com/u/1320418?v=4" width="48px;" alt=""/><br /><sub><b>Charlie Wang</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/liyiheng"><img src="https://avatars3.githubusercontent.com/u/16461061?v=4" width="48px;" alt=""/><br /><sub><b>liyiheng</b></sub></a><br /></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://bjoern.svbtle.com"><img src="https://avatars1.githubusercontent.com/u/1467156?v=4" width="48px;" alt=""/><br /><sub><b>Bjoern Weidlich</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/firecat53"><img src="https://avatars1.githubusercontent.com/u/568113?v=4" width="48px;" alt=""/><br /><sub><b>Scott Hansen</b></sub></a><br /></td>
+    <td align="center"><a href="https://davidsbond.github.io"><img src="https://avatars3.githubusercontent.com/u/6227720?v=4" width="48px;" alt=""/><br /><sub><b>David Bond</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/yesnault"><img src="https://avatars3.githubusercontent.com/u/395454?v=4" width="48px;" alt=""/><br /><sub><b>Yvonnick Esnault</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/leterio"><img src="https://avatars0.githubusercontent.com/u/15060358?v=4" width="48px;" alt=""/><br /><sub><b>Vinícius Letério</b></sub></a><br /></td>
+    <td align="center"><a href="https://adriano.fyi"><img src="https://avatars3.githubusercontent.com/u/3331648?v=4" width="48px;" alt=""/><br /><sub><b>Adriano</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/jonhadfield"><img src="https://avatars1.githubusercontent.com/u/843944?v=4" width="48px;" alt=""/><br /><sub><b>Jon Hadfield</b></sub></a><br /></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://github.com/Tdnshah"><img src="https://avatars2.githubusercontent.com/u/13272752?v=4" width="48px;" alt=""/><br /><sub><b>Tejas Shah</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/mogensen"><img src="https://avatars2.githubusercontent.com/u/592710?v=4" width="48px;" alt=""/><br /><sub><b>Frederik Mogensen</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/rsaarelm"><img src="https://avatars1.githubusercontent.com/u/41840?v=4" width="48px;" alt=""/><br /><sub><b>Risto Saarelma</b></sub></a><br /></td>
+    <td align="center"><a href="https://sam-github.github.io/"><img src="https://avatars2.githubusercontent.com/u/17607?v=4" width="48px;" alt=""/><br /><sub><b>Sam Roberts</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/gerchardon"><img src="https://avatars0.githubusercontent.com/u/5973160?v=4" width="48px;" alt=""/><br /><sub><b>gerchardon</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/mryanmurphy"><img src="https://avatars2.githubusercontent.com/u/641427?v=4" width="48px;" alt=""/><br /><sub><b>Matt</b></sub></a><br /></td>
+    <td align="center"><a href="http://devco.net/"><img src="https://avatars0.githubusercontent.com/u/82342?v=4" width="48px;" alt=""/><br /><sub><b>R.I.Pienaar</b></sub></a><br /></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://github.com/fmotrifork"><img src="https://avatars3.githubusercontent.com/u/18327738?v=4" width="48px;" alt=""/><br /><sub><b>Frederik Mogensen</b></sub></a><br /></td>
+  </tr>
+</table>
+
+<!-- markdownlint-enable -->
+<!-- prettier-ignore-end -->
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 ## Acknowledgments

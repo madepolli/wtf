@@ -40,6 +40,8 @@ func NewSettingsFromYAML(name string, ymlConfig *config.Config, globalConfig *co
 		since:    ymlConfig.UString("since", ""),
 	}
 
+	cfg.ModuleSecret(name, globalConfig, &settings.apiKey).Load()
+
 	settings.colors.ok = ymlConfig.UString("colors.ok", "white")
 	settings.colors.pwned = ymlConfig.UString("colors.pwned", "red")
 
@@ -59,11 +61,7 @@ func (sett *Settings) HasSince() bool {
 	}
 
 	_, err := sett.SinceDate()
-	if err != nil {
-		return false
-	}
-
-	return true
+	return err == nil
 }
 
 // SinceDate returns the "since" settings as a proper Time instance

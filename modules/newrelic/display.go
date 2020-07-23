@@ -3,9 +3,9 @@ package newrelic
 import (
 	"fmt"
 
+	nr "github.com/wtfutil/wtf/modules/newrelic/client"
 	"github.com/wtfutil/wtf/utils"
 	"github.com/wtfutil/wtf/wtf"
-	nr "github.com/yfronto/newrelic"
 )
 
 func (widget *Widget) content() (string, string, bool) {
@@ -37,7 +37,10 @@ func (widget *Widget) content() (string, string, bool) {
 func (widget *Widget) contentFrom(deploys []nr.ApplicationDeployment) string {
 	str := fmt.Sprintf(
 		" %s\n",
-		"[red]Latest Deploys[white]",
+		fmt.Sprintf(
+			"[%s]Latest Deploys[white]",
+			widget.settings.common.Colors.Subheading,
+		),
 	)
 
 	revisions := []string{}

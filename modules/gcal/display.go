@@ -9,21 +9,6 @@ import (
 	"github.com/wtfutil/wtf/utils"
 )
 
-func (widget *Widget) sortedEvents() ([]*CalEvent, []*CalEvent) {
-	allDayEvents := []*CalEvent{}
-	timedEvents := []*CalEvent{}
-
-	for _, calEvent := range widget.calEvents {
-		if calEvent.AllDay() {
-			allDayEvents = append(allDayEvents, calEvent)
-		} else {
-			timedEvents = append(timedEvents, calEvent)
-		}
-	}
-
-	return allDayEvents, timedEvents
-}
-
 func (widget *Widget) display() {
 	widget.Redraw(widget.content)
 }
@@ -48,12 +33,17 @@ func (widget *Widget) content() (string, string, bool) {
 	}
 
 	for _, calEvent := range calEvents {
-		timestamp := fmt.Sprintf("[%s]%s", widget.eventTimeColor(calEvent), calEvent.Timestamp(widget.settings.hourFormat))
+		if calEvent.AllDay() && !widget.settings.showAllDay {
+			continue
+		}
+
+		ts := calEvent.Timestamp(widget.settings.hourFormat, widget.settings.showEndTime)
+		timestamp := fmt.Sprintf("[%s]%s", widget.eventTimeColor(calEvent), ts)
 		if calEvent.AllDay() {
 			timestamp = ""
 		}
 
-		title := fmt.Sprintf("[%s]%s",
+		eventTitle := fmt.Sprintf("[%s]%s",
 			widget.titleColor(calEvent),
 			widget.eventSummary(calEvent, calEvent.ConflictsWith(calEvents)),
 		)
@@ -63,7 +53,7 @@ func (widget *Widget) content() (string, string, bool) {
 			widget.dayDivider(calEvent, prevEvent),
 			widget.responseIcon(calEvent),
 			timestamp,
-			title,
+			eventTitle,
 		)
 
 		str += fmt.Sprintf("%s   %s%s\n",
@@ -98,8 +88,7 @@ func (widget *Widget) dayDivider(event, prevEvent *CalEvent) string {
 	eventStartDay := toMidnight(event.Start())
 
 	if !eventStartDay.Equal(prevStartDay) {
-
-		return fmt.Sprintf("[%s::b]",
+		return fmt.Sprintf("[%s]",
 			widget.settings.colors.day) +
 			event.Start().Format(utils.FullDateFormat) +
 			"\n"
@@ -158,11 +147,12 @@ func (widget *Widget) timeUntil(calEvent *CalEvent) string {
 	untilStr := ""
 
 	color := "[lightblue]"
-	if days > 0 {
+	switch {
+	case days > 0:
 		untilStr = fmt.Sprintf("%dd", days)
-	} else if hours > 0 {
+	case hours > 0:
 		untilStr = fmt.Sprintf("%dh", hours)
-	} else {
+	default:
 		untilStr = fmt.Sprintf("%dm", mins)
 		if mins < 30 {
 			color = "[red]"
@@ -183,7 +173,7 @@ func (widget *Widget) titleColor(calEvent *CalEvent) string {
 			strings.ToLower(calEvent.event.Summary),
 		)
 
-		if match == true {
+		if match {
 			color = highlightElements[1]
 		}
 	}
@@ -196,7 +186,7 @@ func (widget *Widget) titleColor(calEvent *CalEvent) string {
 }
 
 func (widget *Widget) location(calEvent *CalEvent) string {
-	if widget.settings.withLocation == false {
+	if !widget.settings.withLocation {
 		return ""
 	}
 
@@ -212,7 +202,7 @@ func (widget *Widget) location(calEvent *CalEvent) string {
 }
 
 func (widget *Widget) responseIcon(calEvent *CalEvent) string {
-	if widget.settings.displayResponseStatus == false {
+	if !widget.settings.displayResponseStatus {
 		return ""
 	}
 

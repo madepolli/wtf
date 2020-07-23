@@ -71,7 +71,11 @@ func (widget *Widget) HelpText() string {
 /* -------------------- Unexported Functions -------------------- */
 
 func (widget *Widget) content() (string, string, bool) {
-	title := fmt.Sprintf("[green]%s[white]", widget.CurrentSource())
+	title := fmt.Sprintf(
+		"[%s]%s[white]",
+		widget.settings.common.Colors.TextTheme.Title,
+		widget.CurrentSource(),
+	)
 
 	_, _, width, _ := widget.View.GetRect()
 	text := widget.settings.common.SigilStr(len(widget.Sources), widget.Idx, width) + "\n"
@@ -85,18 +89,14 @@ func (widget *Widget) content() (string, string, bool) {
 	return title, text, widget.settings.wrapText
 }
 
-func (widget *Widget) fileName() string {
-	return filepath.Base(widget.CurrentSource())
-}
-
 func (widget *Widget) formattedText() string {
 	filePath, _ := utils.ExpandHomeDir(widget.CurrentSource())
 
-	file, err := os.Open(filePath)
+	file, err := os.Open(filepath.Clean(filePath))
 	if err != nil {
 		return err.Error()
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	lexer := lexers.Match(filePath)
 	if lexer == nil {
@@ -116,15 +116,18 @@ func (widget *Widget) formattedText() string {
 	iterator, _ := lexer.Tokenise(nil, string(contents))
 
 	var buf bytes.Buffer
-	formatter.Format(&buf, style, iterator)
+	err = formatter.Format(&buf, style, iterator)
+	if err != nil {
+		return err.Error()
+	}
 
 	return tview.TranslateANSI(buf.String())
 }
 
 func (widget *Widget) plainText() string {
-	filePath, _ := utils.ExpandHomeDir(widget.CurrentSource())
+	filePath, _ := utils.ExpandHomeDir(filepath.Clean(widget.CurrentSource()))
 
-	text, err := ioutil.ReadFile(filePath)
+	text, err := ioutil.ReadFile(filepath.Clean(filePath))
 	if err != nil {
 		return err.Error()
 	}
@@ -153,8 +156,10 @@ func (widget *Widget) watchForFileChanges() {
 	for _, source := range widget.Sources {
 		fullPath, err := utils.ExpandHomeDir(source)
 		if err == nil {
-			if err := watch.Add(fullPath); err != nil {
-				// Ignore it, don't care about a file that doesn't exist
+			e := watch.Add(fullPath)
+			if e != nil {
+				fmt.Println(e)
+				os.Exit(1)
 			}
 		}
 	}

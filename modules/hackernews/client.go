@@ -19,7 +19,7 @@ func GetStories(storyType string) ([]int, error) {
 			return storyIds, err
 		}
 
-		err = utils.ParseJson(&storyIds, resp.Body)
+		err = utils.ParseJSON(&storyIds, resp.Body)
 		if err != nil {
 			return storyIds, err
 		}
@@ -36,7 +36,7 @@ func GetStory(id int) (Story, error) {
 		return story, err
 	}
 
-	err = utils.ParseJson(&story, resp.Body)
+	err = utils.ParseJSON(&story, resp.Body)
 	if err != nil {
 		return story, err
 	}
@@ -52,6 +52,9 @@ var (
 
 func apiRequest(path string) (*http.Response, error) {
 	req, err := http.NewRequest("GET", apiEndpoint+path+".json", nil)
+	if err != nil {
+		return nil, err
+	}
 
 	httpClient := &http.Client{}
 	resp, err := httpClient.Do(req)

@@ -22,14 +22,13 @@ func (widget *Widget) content() (string, string, bool) {
 		return title, widget.err.Error(), true
 	}
 
-	data := widget.torrents
-	if data == nil || len(data) == 0 {
+	if len(widget.torrents) == 0 {
 		return title, "No data", false
 	}
 
 	str := ""
 
-	for idx, torrent := range data {
+	for idx, torrent := range widget.torrents {
 		torrName := *torrent.Name
 
 		row := fmt.Sprintf(
@@ -58,11 +57,12 @@ func (widget *Widget) torrentPercentDone(torrent *transmissionrpc.Torrent) strin
 	pctDone := *torrent.PercentDone
 	str := fmt.Sprintf("%3d%%↓", int(pctDone*100))
 
-	if pctDone == 0.0 {
+	switch pctDone {
+	case 0.0:
 		str = "[gray::b]" + str
-	} else if pctDone == 1.0 {
+	case 1.0:
 		str = "[green::b]" + str
-	} else {
+	default:
 		str = "[lightblue::b]" + str
 	}
 

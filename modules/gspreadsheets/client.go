@@ -16,11 +16,11 @@ import (
 	"os"
 	"os/user"
 	"path/filepath"
-	"strings"
 
 	"github.com/wtfutil/wtf/utils"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
+	"google.golang.org/api/option"
 	sheets "google.golang.org/api/sheets/v4"
 )
 
@@ -31,36 +31,32 @@ func (widget *Widget) Fetch() ([]*sheets.ValueRange, error) {
 
 	secretPath, _ := utils.ExpandHomeDir(widget.settings.secretFile)
 
-	b, err := ioutil.ReadFile(secretPath)
+	b, err := ioutil.ReadFile(filepath.Clean(secretPath))
 	if err != nil {
 		log.Fatalf("Unable to read secretPath. %v", err)
 		return nil, err
 	}
 
 	config, err := google.ConfigFromJSON(b, "https://www.googleapis.com/auth/spreadsheets.readonly")
-
 	if err != nil {
-		log.Fatalf("Unable to get config from JSON. %v", err)
 		return nil, err
 	}
+
 	client := getClient(ctx, config)
 
-	srv, err := sheets.New(client)
+	srv, err := sheets.NewService(context.Background(), option.WithHTTPClient(client))
 	if err != nil {
-		log.Fatalf("Unable to get create server. %v", err)
 		return nil, err
 	}
 
 	cells := utils.ToStrs(widget.settings.cellAddresses)
-	addresses := strings.Join(cells[:], ";")
 
 	responses := make([]*sheets.ValueRange, len(cells))
 
 	for i := 0; i < len(cells); i++ {
-		resp, err := srv.Spreadsheets.Values.Get(widget.settings.sheetID, cells[i]).Do()
-		if err != nil {
-			log.Fatalf("Error fetching cells %s", addresses)
-			return nil, err
+		resp, getErr := srv.Spreadsheets.Values.Get(widget.settings.sheetID, cells[i]).Do()
+		if getErr != nil {
+			return nil, getErr
 		}
 		responses[i] = resp
 	}
@@ -97,7 +93,7 @@ func getTokenFromWeb(config *oauth2.Config) *oauth2.Token {
 		log.Fatalf("Unable to read authorization code %v", err)
 	}
 
-	tok, err := config.Exchange(oauth2.NoContext, code)
+	tok, err := config.Exchange(context.Background(), code)
 	if err != nil {
 		log.Fatalf("Unable to retrieve token from web %v", err)
 	}
@@ -111,22 +107,26 @@ func tokenCacheFile() (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	tokenCacheDir := filepath.Join(usr.HomeDir, ".credentials")
-	os.MkdirAll(tokenCacheDir, 0700)
-	return filepath.Join(tokenCacheDir,
-		url.QueryEscape("spreadsheets-go-quickstart.json")), err
+	err = os.MkdirAll(tokenCacheDir, 0700)
+	if err != nil {
+		return "", err
+	}
+
+	return filepath.Join(tokenCacheDir, url.QueryEscape("spreadsheets-go-quickstart.json")), err
 }
 
 // tokenFromFile retrieves a Token from a given file path.
 // It returns the retrieved Token and any read error encountered.
 func tokenFromFile(file string) (*oauth2.Token, error) {
-	f, err := os.Open(file)
+	f, err := os.Open(filepath.Clean(file))
 	if err != nil {
 		return nil, err
 	}
 	t := &oauth2.Token{}
 	err = json.NewDecoder(f).Decode(t)
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 	return t, err
 }
 
@@ -138,7 +138,10 @@ func saveToken(file string, token *oauth2.Token) {
 	if err != nil {
 		log.Fatalf("Unable to cache oauth token: %v", err)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
-	json.NewEncoder(f).Encode(token)
+	err = json.NewEncoder(f).Encode(token)
+	if err != nil {
+		log.Fatalf("Unable to encode oauth token: %v", err)
+	}
 }

@@ -158,7 +158,11 @@ func (tracker *FocusTracker) blur(idx int) {
 	view := widget.TextView()
 	view.Blur()
 
-	view.SetBorderColor(wtf.ColorFor(widget.BorderColor()))
+	view.SetBorderColor(
+		wtf.ColorFor(
+			widget.BorderColor(),
+		),
+	)
 
 	tracker.IsFocused = false
 }
@@ -178,7 +182,11 @@ func (tracker *FocusTracker) focus(idx int) {
 	}
 
 	view := widget.TextView()
-	view.SetBorderColor(wtf.ColorFor(tracker.config.UString("wtf.colors.border.focused", "gray")))
+	view.SetBorderColor(
+		wtf.ColorFor(
+			widget.CommonSettings().Colors.BorderTheme.Focused,
+		),
+	)
 	tracker.App.SetFocus(view)
 }
 
@@ -192,7 +200,7 @@ func (tracker *FocusTracker) focusables() []wtf.Wtfable {
 	}
 
 	// Sort for deterministic ordering
-	sort.SliceStable(focusable[:], func(i, j int) bool {
+	sort.SliceStable(focusable, func(i, j int) bool {
 		iTop := focusable[i].CommonSettings().Top
 		jTop := focusable[j].CommonSettings().Top
 

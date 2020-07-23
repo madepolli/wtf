@@ -4,8 +4,6 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-
-	"github.com/wtfutil/wtf/utils"
 )
 
 /* -------------------- Exported Functions -------------------- */
@@ -19,7 +17,7 @@ func Log(msg string) {
 	if err != nil {
 		log.Fatalf("error opening file: %v", err)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	log.SetOutput(f)
 	log.Println(msg)
@@ -30,7 +28,7 @@ func LogFileMissing() bool {
 }
 
 func LogFilePath() string {
-	dir, err := utils.Home()
+	dir, err := os.UserHomeDir()
 	if err != nil {
 		return ""
 	}

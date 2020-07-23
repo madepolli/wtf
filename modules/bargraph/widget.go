@@ -5,16 +5,12 @@ This is a demo bargraph that just populates some random date/val data
 */
 
 import (
-	"github.com/rivo/tview"
 	"math/rand"
 	"time"
 
-	"github.com/wtfutil/wtf/view"
-)
+	"github.com/rivo/tview"
 
-var (
-	ok      = true
-	started = false
+	"github.com/wtfutil/wtf/view"
 )
 
 // Widget define wtf widget to register widget later
@@ -49,7 +45,7 @@ func MakeGraph(widget *Widget) {
 
 	barTime := time.Now()
 	for i := 0; i < lineCount; i++ {
-		barTime = barTime.Add(time.Duration(time.Minute))
+		barTime = barTime.Add(time.Minute)
 
 		bar := view.Bar{
 			Label:      barTime.Format("15:04"),

@@ -90,11 +90,13 @@ func (widget *Widget) Refresh() {
 func (widget *Widget) updateSummary() {
 	// In case if anything bad happened!
 	defer func() {
-		recover()
+		if r := recover(); r != nil {
+			fmt.Println("recovered in updateSummary()", r)
+		}
 	}()
 
 	client := &http.Client{
-		Timeout: time.Duration(5 * time.Second),
+		Timeout: 5 * time.Second,
 	}
 
 	for _, baseCurrency := range widget.summaryList.items {
@@ -120,10 +122,14 @@ func (widget *Widget) updateSummary() {
 				errorText = ""
 			}
 
-			defer response.Body.Close()
+			defer func() { _ = response.Body.Close() }()
 			jsonResponse := summaryResponse{}
 			decoder := json.NewDecoder(response.Body)
-			decoder.Decode(&jsonResponse)
+			err = decoder.Decode(&jsonResponse)
+			if err != nil {
+				errorText = "Could not parse JSON!"
+				break
+			}
 
 			if !jsonResponse.Success {
 				ok = false

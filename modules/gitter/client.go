@@ -16,7 +16,7 @@ func GetMessages(roomId string, numberOfMessages int, apiToken string) ([]Messag
 		return nil, err
 	}
 
-	err = utils.ParseJson(&messages, resp.Body)
+	err = utils.ParseJSON(&messages, resp.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -32,7 +32,7 @@ func GetRoom(roomUri, apiToken string) (*Room, error) {
 		return nil, err
 	}
 
-	err = utils.ParseJson(&rooms, resp.Body)
+	err = utils.ParseJSON(&rooms, resp.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -54,6 +54,10 @@ var (
 
 func apiRequest(path, apiToken string) (*http.Response, error) {
 	req, err := http.NewRequest("GET", apiBaseURL+path, nil)
+	if err != nil {
+		return nil, err
+	}
+
 	bearer := fmt.Sprintf("Bearer %s", apiToken)
 	req.Header.Add("Authorization", bearer)
 

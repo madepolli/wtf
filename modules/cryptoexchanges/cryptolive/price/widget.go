@@ -48,7 +48,7 @@ func (widget *Widget) Refresh(wg *sync.WaitGroup) {
 	if len(widget.list.items) != 0 {
 		widget.updateCurrencies()
 		if !ok {
-			widget.Result = fmt.Sprint("Please check your internet connection!")
+			widget.Result = "Please check your internet connection"
 		} else {
 			widget.display()
 		}
@@ -99,7 +99,9 @@ func (widget *Widget) getToList(symbol string) []*toCurrency {
 
 func (widget *Widget) updateCurrencies() {
 	defer func() {
-		recover()
+		if r := recover(); r != nil {
+			fmt.Println("recovered in updateSummary()", r)
+		}
 	}()
 	for _, fromCurrency := range widget.list.items {
 
@@ -109,7 +111,7 @@ func (widget *Widget) updateCurrencies() {
 		)
 
 		client = http.Client{
-			Timeout: time.Duration(5 * time.Second),
+			Timeout: 5 * time.Second,
 		}
 
 		request := makeRequest(fromCurrency)
@@ -121,27 +123,22 @@ func (widget *Widget) updateCurrencies() {
 			ok = true
 		}
 
-		defer response.Body.Close()
+		defer func() { _ = response.Body.Close() }()
 
 		_ = json.NewDecoder(response.Body).Decode(&jsonResponse)
 
 		setPrices(&jsonResponse, fromCurrency)
 	}
-
 }
 
 func makeRequest(currency *fromCurrency) *http.Request {
-	fsym := currency.name
 	tsyms := ""
 	for _, to := range currency.to {
 		tsyms += fmt.Sprintf("%s,", to.name)
 	}
 
-	url := fmt.Sprintf("%s?fsym=%s&tsyms=%s", baseURL, fsym, tsyms)
-	request, err := http.NewRequest("GET", url, nil)
-
-	if err != nil {
-	}
+	url := fmt.Sprintf("%s?fsym=%s&tsyms=%s", baseURL, currency.name, "")
+	request, _ := http.NewRequest("GET", url, nil)
 
 	return request
 }

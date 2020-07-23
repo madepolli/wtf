@@ -21,7 +21,6 @@ type Widget struct {
 	view.TextWidget
 
 	language string
-	result   string
 	settings *Settings
 }
 
@@ -68,7 +67,7 @@ func (widget *Widget) nbascore() (string, string, bool) {
 	if err != nil {
 		return title, err.Error(), true
 	}
-	defer response.Body.Close()
+	defer func() { _ = response.Body.Close() }()
 	if response.StatusCode != 200 {
 		return title, err.Error(), true
 	} // Get data from data.nba.net and check if successful
@@ -78,9 +77,13 @@ func (widget *Widget) nbascore() (string, string, bool) {
 		return title, err.Error(), true
 	}
 	result := map[string]interface{}{}
-	json.Unmarshal(contents, &result)
-	allGame := "" // store result in allgame
-	allGame += (" " + "[red]" + (cur.Format(utils.FriendlyDateFormat) + "\n\n") + "[white]")
+	err = json.Unmarshal(contents, &result)
+	if err != nil {
+		return title, err.Error(), true
+	}
+
+	allGame := fmt.Sprintf(" [%s]", widget.settings.common.Colors.Subheading) + (cur.Format(utils.FriendlyDateFormat) + "\n\n") + "[white]"
+
 	for _, game := range result["games"].([]interface{}) {
 		vTeam, hTeam, vScore, hScore := "", "", "", ""
 		quarter := 0.
@@ -131,7 +134,7 @@ func (widget *Widget) nbascore() (string, string, bool) {
 			}
 		}
 		qColor := "[white]"
-		if activate == true {
+		if activate {
 			qColor = "[sandybrown]"
 		}
 		allGame += fmt.Sprintf("%s%5s%v[white] %s %3s [white]vs %s%-3s %s\n", qColor, "Q", quarter, vTeam, vScore, hColor, hScore, hTeam) // Format the score and store in allgame

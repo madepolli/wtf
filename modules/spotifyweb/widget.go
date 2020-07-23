@@ -53,7 +53,10 @@ func authHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	// use the token to get an authenticated client
 	client := auth.NewClient(tok)
-	fmt.Fprintf(w, "Login Completed!")
+	_, err = fmt.Fprintf(w, "Login Completed!")
+	if err != nil {
+		return
+	}
 	tempClientChan <- &client
 }
 
@@ -81,7 +84,12 @@ func NewWidget(app *tview.Application, pages *tview.Pages, settings *Settings) *
 	}
 
 	http.HandleFunc("/callback", authHandler)
-	go http.ListenAndServe(":"+callbackPort, nil)
+	go func() {
+		err := http.ListenAndServe(":"+callbackPort, nil)
+		if err != nil {
+			return
+		}
+	}()
 
 	go func() {
 		// wait for auth to complete
@@ -128,12 +136,12 @@ func NewWidget(app *tview.Application, pages *tview.Pages, settings *Settings) *
 
 func (w *Widget) refreshSpotifyInfos() error {
 	if w.client == nil || w.playerState == nil {
-		return errors.New("Authentication failed! Please log in to Spotify by visiting the following page in your browser: " + authURL)
+		return errors.New("authentication failed! Please log in to Spotify by visiting the following page in your browser: " + authURL)
 	}
 	var err error
 	w.playerState, err = w.client.PlayerState()
 	if err != nil {
-		return errors.New("Extracting player state failed! Please refresh or restart WTF")
+		return errors.New("extracting player state failed! Please refresh or restart WTF")
 	}
 	w.Info.Album = fmt.Sprint(w.playerState.CurrentlyPlaying.Item.Album.Name)
 	artists := ""
@@ -162,19 +170,20 @@ func (widget *Widget) HelpText() string {
 }
 
 func (w *Widget) createOutput() (string, string, bool) {
-	err := w.refreshSpotifyInfos()
 	var output string
+
+	err := w.refreshSpotifyInfos()
 	if err != nil {
 		output = err.Error()
 	} else {
-		output := utils.CenterText(fmt.Sprintf("[green]Now %v [white]\n", w.Info.Status), w.CommonSettings().Width)
+		output += utils.CenterText(fmt.Sprintf("[green]Now %v [white]\n", w.Info.Status), w.CommonSettings().Width)
 		output += utils.CenterText(fmt.Sprintf("[green]Title:[white] %v\n", w.Info.Title), w.CommonSettings().Width)
 		output += utils.CenterText(fmt.Sprintf("[green]Artist:[white] %v\n", w.Info.Artists), w.CommonSettings().Width)
 		output += utils.CenterText(fmt.Sprintf("[green]Album:[white] %v\n", w.Info.Album), w.CommonSettings().Width)
 		if w.playerState.ShuffleState {
-			output += utils.CenterText(fmt.Sprintf("[green]Shuffle:[white] on\n"), w.CommonSettings().Width)
+			output += utils.CenterText("[green]Shuffle:[white] on\n", w.CommonSettings().Width)
 		} else {
-			output += utils.CenterText(fmt.Sprintf("[green]Shuffle:[white] off\n"), w.CommonSettings().Width)
+			output += utils.CenterText("[green]Shuffle:[white] off\n", w.CommonSettings().Width)
 		}
 	}
 	return w.CommonSettings().Title, output, true
